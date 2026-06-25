@@ -73,6 +73,8 @@ export async function crTestSubscribe(
         {
           email,
           source: "Diagnose",
+          activated: 0,
+          deactivated: 0,
           global_attributes: {
             language: lang === "en" ? "Englisch" : "Deutsch",
             quelle: "Diagnose",
@@ -159,6 +161,10 @@ export async function subscribeToNewsletter({
         {
           email,
           source,
+          // Als ausstehend anlegen (nicht aktiv) → ermöglicht den DOI-Versand.
+          // Aktiv wird der Empfänger erst nach Klick in der Bestätigungsmail.
+          activated: 0,
+          deactivated: 0,
           // kontoweite Felder
           global_attributes: {
             language: lang === "en" ? "Englisch" : "Deutsch",
@@ -197,8 +203,16 @@ export async function subscribeToNewsletter({
         }),
       }
     );
+    // "already active" ist kein echter Fehler: Adresse ist bereits bestätigt,
+    // dann ist keine erneute DOI-Mail nötig.
     if (!doi.ok) {
-      throw new Error(`CleverReach DOI-Versand fehlgeschlagen (${doi.status})`);
+      const body = await doi.json().catch(() => null);
+      const msg = body?.error?.message || "";
+      if (!/already active/i.test(msg)) {
+        throw new Error(
+          `CleverReach DOI-Versand fehlgeschlagen (${doi.status}): ${msg}`
+        );
+      }
     }
   }
 }
