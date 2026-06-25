@@ -36,6 +36,42 @@ async function getAccessToken(): Promise<string> {
   return data.access_token as string;
 }
 
+/**
+ * Diagnose: liest Gruppen sowie globale und Gruppen-Attribute aus.
+ * Wird nur vom geschützten /api/cr-debug-Endpoint genutzt, um die
+ * internen Feld-Schlüssel + Optionswerte zu ermitteln.
+ */
+export async function crDebug(): Promise<unknown> {
+  const token = await getAccessToken();
+  const auth = { Authorization: `Bearer ${token}` };
+  const groupId = process.env.CLEVERREACH_GROUP_ID;
+
+  const safe = (p: Promise<Response>) =>
+    p.then((r) => r.json()).catch((e) => ({ error: String(e) }));
+
+  const [groups, globalAttributes, groupAttributes] = await Promise.all([
+    safe(fetch(`${API_BASE}/groups.json`, { headers: auth })),
+    safe(fetch(`${API_BASE}/attributes.json`, { headers: auth })),
+    groupId
+      ? safe(
+          fetch(`${API_BASE}/attributes.json?group_id=${groupId}`, {
+            headers: auth,
+          })
+        )
+      : Promise.resolve(null),
+  ]);
+
+  return {
+    configured: {
+      groupId: groupId ?? null,
+      formId: process.env.CLEVERREACH_FORM_ID ?? null,
+    },
+    groups,
+    globalAttributes,
+    groupAttributes,
+  };
+}
+
 interface SubscribeArgs {
   email: string;
   /** Sprache steuert ggf. die DOI-Mail/Gruppe ("de" | "en") */
