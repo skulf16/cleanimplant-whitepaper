@@ -36,61 +36,35 @@ async function getAccessToken(): Promise<string> {
   return data.access_token as string;
 }
 
-/**
- * Diagnose: liest Gruppen sowie globale und Gruppen-Attribute aus.
- * Wird nur vom geschützten /api/cr-debug-Endpoint genutzt, um die
- * internen Feld-Schlüssel + Optionswerte zu ermitteln.
- */
-export async function crDebug(): Promise<unknown> {
-  const token = await getAccessToken();
-  const auth = { Authorization: `Bearer ${token}` };
-  const groupId = process.env.CLEVERREACH_GROUP_ID;
-
-  const safe = (p: Promise<Response>) =>
-    p.then((r) => r.json()).catch((e) => ({ error: String(e) }));
-
-  const [groups, globalAttributes, groupAttributes] = await Promise.all([
-    safe(fetch(`${API_BASE}/groups.json`, { headers: auth })),
-    safe(fetch(`${API_BASE}/attributes.json`, { headers: auth })),
-    groupId
-      ? safe(
-          fetch(`${API_BASE}/attributes.json?group_id=${groupId}`, {
-            headers: auth,
-          })
-        )
-      : Promise.resolve(null),
-  ]);
-
-  return {
-    configured: {
-      groupId: groupId ?? null,
-      formId: process.env.CLEVERREACH_FORM_ID ?? null,
-    },
-    groups,
-    globalAttributes,
-    groupAttributes,
-  };
-}
-
 interface SubscribeArgs {
   email: string;
-  /** Sprache steuert ggf. die DOI-Mail/Gruppe ("de" | "en") */
+  /** Sprache des gewählten Whitepapers ("de" | "en") → Feld `language` */
   lang?: "de" | "en";
-  /** Beliebige zusätzliche Felder (global attributes) */
-  attributes?: Record<string, string>;
+  /** Wurden die Guidelines mitbestellt? → Gruppen-Feld `guideline` (Ja/Nein) */
+  wantsGuideline?: boolean;
   source?: string;
+  /** Für den DOI-Einwilligungsnachweis */
+  userIp?: string;
+  userAgent?: string;
 }
 
 /**
  * Trägt eine Adresse in die CleverReach-Gruppe ein und stößt das
  * Double-Opt-in an. Existiert die Adresse bereits (und ist bestätigt),
  * passiert nichts Doppeltes – CleverReach verwaltet das selbst.
+ *
+ * Geschriebene Felder:
+ *  - global `language`  → "Deutsch" / "Englisch"
+ *  - global `quelle`    → Quelle der Anmeldung
+ *  - group  `guideline` → "Ja" / "Nein"
  */
 export async function subscribeToNewsletter({
   email,
   lang = "de",
-  attributes = {},
-  source = "whitepaper-landingpage",
+  wantsGuideline = false,
+  source = "Whitepaper Landingpage",
+  userIp = "",
+  userAgent = "",
 }: SubscribeArgs): Promise<void> {
   if (!isCleverReachConfigured()) {
     console.warn(
@@ -117,7 +91,15 @@ export async function subscribeToNewsletter({
         {
           email,
           source,
-          attributes,
+          // kontoweite Felder
+          global_attributes: {
+            language: lang === "en" ? "Englisch" : "Deutsch",
+            quelle: source,
+          },
+          // gruppenspezifische Felder
+          attributes: {
+            guideline: wantsGuideline ? "Ja" : "Nein",
+          },
         },
       ]),
     }
@@ -140,9 +122,9 @@ export async function subscribeToNewsletter({
         body: JSON.stringify({
           email,
           doidata: {
-            user_ip: attributes.user_ip || "",
+            user_ip: userIp,
             referer: source,
-            user_agent: attributes.user_agent || "",
+            user_agent: userAgent,
           },
         }),
       }

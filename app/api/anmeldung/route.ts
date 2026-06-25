@@ -28,16 +28,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
 
-  const {
-    email,
-    documents,
-    roles,
-    newsletter,
-    source,
-  } = (body ?? {}) as {
+  const { email, documents, newsletter, source } = (body ?? {}) as {
     email?: string;
     documents?: unknown[];
-    roles?: string[];
     newsletter?: boolean;
     source?: string;
   };
@@ -94,10 +87,11 @@ export async function POST(req: NextRequest) {
       await subscribeToNewsletter({
         email: email.trim(),
         lang,
-        source: source || "whitepaper-landingpage",
-        attributes: {
-          roles: Array.isArray(roles) ? roles.join(",") : "",
-        },
+        wantsGuideline: selectedDocs.includes("guidelines"),
+        source: source || "Whitepaper Landingpage",
+        userIp:
+          req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "",
+        userAgent: req.headers.get("user-agent") || "",
       });
     } catch (err) {
       // Newsletter-Fehler darf den Download nicht blockieren
