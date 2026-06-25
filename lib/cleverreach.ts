@@ -36,6 +36,74 @@ async function getAccessToken(): Promise<string> {
   return data.access_token as string;
 }
 
+/**
+ * Diagnose: führt die komplette Newsletter-Kette aus und gibt jeden Schritt
+ * mit HTTP-Status + Antwort zurück. Nur für den geschützten Test-Endpoint.
+ */
+export async function crTestSubscribe(
+  email: string,
+  lang: "de" | "en" = "de",
+  wantsGuideline = true
+): Promise<unknown> {
+  const out: Record<string, unknown> = {
+    configured: {
+      groupId: process.env.CLEVERREACH_GROUP_ID ?? null,
+      formId: process.env.CLEVERREACH_FORM_ID ?? null,
+    },
+  };
+
+  let token: string;
+  try {
+    token = await getAccessToken();
+    out.token = { ok: true };
+  } catch (e) {
+    out.token = { ok: false, error: String(e) };
+    return out;
+  }
+  const auth = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
+  const groupId = process.env.CLEVERREACH_GROUP_ID;
+  const formId = process.env.CLEVERREACH_FORM_ID;
+
+  // upsert
+  try {
+    const up = await fetch(`${API_BASE}/groups.json/${groupId}/receivers/upsert`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify([
+        {
+          email,
+          source: "Diagnose",
+          global_attributes: {
+            language: lang === "en" ? "Englisch" : "Deutsch",
+            quelle: "Diagnose",
+          },
+          attributes: { guideline: wantsGuideline ? "Ja" : "Nein" },
+        },
+      ]),
+    });
+    out.upsert = { status: up.status, body: await up.json().catch(() => null) };
+  } catch (e) {
+    out.upsert = { error: String(e) };
+  }
+
+  // DOI
+  try {
+    const doi = await fetch(`${API_BASE}/forms.json/${formId}/send/activate`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({
+        email,
+        doidata: { user_ip: "127.0.0.1", referer: "Diagnose", user_agent: "diag" },
+      }),
+    });
+    out.doi = { status: doi.status, body: await doi.json().catch(() => null) };
+  } catch (e) {
+    out.doi = { error: String(e) };
+  }
+
+  return out;
+}
+
 interface SubscribeArgs {
   email: string;
   /** Sprache des gewählten Whitepapers ("de" | "en") → Feld `language` */

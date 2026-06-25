@@ -30,6 +30,23 @@ function getTransporter(): nodemailer.Transporter {
   return transporter;
 }
 
+/** Diagnose: prüft die SMTP-Verbindung (ohne Mailversand). */
+export async function verifyMail(): Promise<{
+  configured: boolean;
+  ok: boolean;
+  error?: string;
+}> {
+  if (!isMailConfigured()) {
+    return { configured: false, ok: false, error: "SMTP nicht konfiguriert" };
+  }
+  try {
+    await getTransporter().verify();
+    return { configured: true, ok: true };
+  } catch (err) {
+    return { configured: true, ok: false, error: String(err) };
+  }
+}
+
 interface SendArgs {
   to: string;
   subject: string;
