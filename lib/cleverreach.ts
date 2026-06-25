@@ -64,24 +64,23 @@ export async function crTestSubscribe(
   const groupId = process.env.CLEVERREACH_GROUP_ID;
   const formId = process.env.CLEVERREACH_FORM_ID;
 
-  // upsert
+  // create (als ausstehend)
   try {
-    const up = await fetch(`${API_BASE}/groups.json/${groupId}/receivers/upsert`, {
+    const up = await fetch(`${API_BASE}/groups.json/${groupId}/receivers`, {
       method: "POST",
       headers: auth,
-      body: JSON.stringify([
-        {
-          email,
-          source: "Diagnose",
-          activated: 0,
-          deactivated: 0,
-          global_attributes: {
-            language: lang === "en" ? "Englisch" : "Deutsch",
-            quelle: "Diagnose",
-          },
-          attributes: { guideline: wantsGuideline ? "Ja" : "Nein" },
+      body: JSON.stringify({
+        email,
+        registered: Math.floor(Date.now() / 1000),
+        activated: 0,
+        deactivated: 0,
+        source: "Diagnose",
+        global_attributes: {
+          language: lang === "en" ? "Englisch" : "Deutsch",
+          quelle: "Diagnose",
         },
-      ]),
+        attributes: { guideline: wantsGuideline ? "Ja" : "Nein" },
+      }),
     });
     out.upsert = { status: up.status, body: await up.json().catch(() => null) };
   } catch (e) {
@@ -151,35 +150,35 @@ export async function subscribeToNewsletter({
   const token = await getAccessToken();
   const authHeader = { Authorization: `Bearer ${token}` };
 
-  // 1. Empfänger in Gruppe anlegen/aktualisieren (noch nicht aktiv)
-  const upsert = await fetch(
-    `${API_BASE}/groups.json/${groupId}/receivers/upsert`,
-    {
-      method: "POST",
-      headers: { ...authHeader, "Content-Type": "application/json" },
-      body: JSON.stringify([
-        {
-          email,
-          source,
-          // Als ausstehend anlegen (nicht aktiv) → ermöglicht den DOI-Versand.
-          // Aktiv wird der Empfänger erst nach Klick in der Bestätigungsmail.
-          activated: 0,
-          deactivated: 0,
-          // kontoweite Felder
-          global_attributes: {
-            language: lang === "en" ? "Englisch" : "Deutsch",
-            quelle: source,
-          },
-          // gruppenspezifische Felder
-          attributes: {
-            guideline: wantsGuideline ? "Ja" : "Nein",
-          },
-        },
-      ]),
+  // 1. Empfänger als AUSSTEHEND anlegen (activated:0) → ermöglicht den DOI.
+  //    /receivers (create) hält activated:0 ein; /upsert würde sofort aktivieren.
+  const create = await fetch(`${API_BASE}/groups.json/${groupId}/receivers`, {
+    method: "POST",
+    headers: { ...authHeader, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email,
+      registered: Math.floor(Date.now() / 1000),
+      activated: 0,
+      deactivated: 0,
+      source,
+      global_attributes: {
+        language: lang === "en" ? "Englisch" : "Deutsch",
+        quelle: source,
+      },
+      attributes: {
+        guideline: wantsGuideline ? "Ja" : "Nein",
+      },
+    }),
+  });
+  // Duplikat (Adresse existiert bereits) ist kein Fehler – dann nur DOI anstoßen.
+  if (!create.ok) {
+    const body = await create.json().catch(() => null);
+    const msg = body?.error?.message || "";
+    if (!/duplicate|already|exist/i.test(msg)) {
+      throw new Error(
+        `CleverReach Eintrag fehlgeschlagen (${create.status}): ${msg}`
+      );
     }
-  );
-  if (!upsert.ok) {
-    throw new Error(`CleverReach upsert fehlgeschlagen (${upsert.status})`);
   }
 
   // 2. Double-Opt-in-Mail auslösen (sofern ein DOI-Formular hinterlegt ist)
