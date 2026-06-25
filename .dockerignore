@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+.env
+.env*.local
+*.DS_Store
+npm-debug.log
+README.md
+index.html
+cleanimplant_whitepaper_download.html
