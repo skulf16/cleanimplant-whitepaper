@@ -105,6 +105,115 @@ export async function crTestSubscribe(
   return out;
 }
 
+async function authedHeaders() {
+  const token = await getAccessToken();
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+}
+
+/**
+ * Prüft, ob die Adresse bereits ein aktiver (bestätigter) Empfänger ist –
+ * kontoweit. Bestandskontakte bekommen so den Download sofort.
+ */
+export async function isContactActive(email: string): Promise<boolean> {
+  if (!isCleverReachConfigured()) return false;
+  try {
+    const headers = await authedHeaders();
+    const res = await fetch(
+      `${API_BASE}/receivers.json/${encodeURIComponent(email)}`,
+      { headers }
+    );
+    if (!res.ok) return false;
+    const d = await res.json();
+    return (
+      Boolean(d) &&
+      Number(d.activated) > 0 &&
+      Number(d.deactivated) === 0
+    );
+  } catch {
+    return false;
+  }
+}
+
+interface PendingArgs {
+  email: string;
+  lang?: "de" | "en";
+  wantsGuideline?: boolean;
+  newsletter?: boolean;
+  source?: string;
+}
+
+/**
+ * Legt den Kontakt in der Gruppe als AUSSTEHEND (activated:0) an.
+ * Aktiviert wird er erst nach Klick auf den Bestätigungslink (activateContact).
+ * Kein CleverReach-DOI – die Bestätigung läuft über unsere eigene Mail/Seite.
+ */
+export async function addContactPending({
+  email,
+  lang = "de",
+  wantsGuideline = false,
+  newsletter = false,
+  source = "Whitepaper Landingpage",
+}: PendingArgs): Promise<void> {
+  if (!isCleverReachConfigured()) {
+    console.warn(`[cleverreach] Nicht konfiguriert – ${email} nicht übertragen.`);
+    return;
+  }
+  const groupId = process.env.CLEVERREACH_GROUP_ID;
+  const headers = await authedHeaders();
+  const res = await fetch(`${API_BASE}/groups.json/${groupId}/receivers`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      email,
+      registered: Math.floor(Date.now() / 1000),
+      activated: 0,
+      deactivated: 0,
+      source,
+      global_attributes: {
+        language: lang === "en" ? "Englisch" : "Deutsch",
+        newsletter: newsletter ? "Ja" : "Nein",
+        quelle: source,
+      },
+      attributes: { guideline: wantsGuideline ? "Ja" : "Nein" },
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    const msg = body?.error?.message || "";
+    // Duplikat ist ok (Adresse existiert bereits)
+    if (!/duplicate|already|exist/i.test(msg)) {
+      throw new Error(`CleverReach Eintrag fehlgeschlagen (${res.status}): ${msg}`);
+    }
+  }
+}
+
+/**
+ * Aktiviert (bestätigt) den Kontakt nach Klick auf den Bestätigungslink.
+ */
+export async function activateContact(email: string): Promise<void> {
+  if (!isCleverReachConfigured()) return;
+  const groupId = process.env.CLEVERREACH_GROUP_ID;
+  const headers = await authedHeaders();
+  const res = await fetch(
+    `${API_BASE}/groups.json/${groupId}/receivers/${encodeURIComponent(
+      email
+    )}/activate`,
+    { method: "PUT", headers, body: "{}" }
+  );
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    const msg = body?.error?.message || "";
+    if (!/already active/i.test(msg)) {
+      throw new Error(
+        `CleverReach Aktivierung fehlgeschlagen (${res.status}): ${msg}`
+      );
+    }
+  }
+}
+
 interface SubscribeArgs {
   email: string;
   /** Sprache des gewählten Whitepapers ("de" | "en") → Feld `language` */

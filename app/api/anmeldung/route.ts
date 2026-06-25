@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DocumentId, DOCUMENTS, isDocumentId } from "@/lib/documents";
-import { buildDownloadEmail } from "@/lib/email-template";
-import { signedDownloadUrl } from "@/lib/token";
-import { sendMail } from "@/lib/mailer";
-import { subscribeToNewsletter } from "@/lib/cleverreach";
+import { buildDownloadEmail, buildConfirmEmail } from "@/lib/email-template";
+import { signedDownloadUrl, createConfirmToken } from "@/lib/token";
+import { sendMail, isMailConfigured } from "@/lib/mailer";
+import { isContactActive, addContactPending } from "@/lib/cleverreach";
 
 export const runtime = "nodejs";
 
@@ -35,13 +35,13 @@ export async function POST(req: NextRequest) {
     source?: string;
   };
 
-  // Validierung
   if (!email || !isValidEmail(email)) {
     return NextResponse.json(
       { error: "Bitte geben Sie eine gültige E-Mail-Adresse ein." },
       { status: 400 }
     );
   }
+  const cleanEmail = email.trim();
 
   const selectedDocs: DocumentId[] = Array.isArray(documents)
     ? (documents.filter(isDocumentId) as DocumentId[])
@@ -59,45 +59,68 @@ export async function POST(req: NextRequest) {
   }
 
   const baseUrl = resolveBaseUrl(req);
-
-  // E-Mail-Sprache: Englisch nur, wenn ausschließlich englische Inhalte gewählt
-  const wantsGerman = selectedDocs.includes("whitepaper_de");
-  const lang: "de" | "en" = wantsGerman ? "de" : "en";
-
+  const lang: "de" | "en" = selectedDocs.includes("whitepaper_de") ? "de" : "en";
   const links = selectedDocs.map((id) => ({
     label: DOCUMENTS[id].label,
     url: signedDownloadUrl(baseUrl, id),
   }));
 
-  // 1. Download-Mail versenden (transaktional, ohne Double-Opt-in)
+  // Ist die Adresse bereits ein aktiver/bestätigter Kontakt? → sofort ausliefern
+  let alreadyActive = false;
   try {
-    const mail = buildDownloadEmail({ documents: selectedDocs, baseUrl, lang });
-    await sendMail({ to: email.trim(), ...mail });
+    alreadyActive = await isContactActive(cleanEmail);
   } catch (err) {
-    console.error("[anmeldung] Mailversand fehlgeschlagen:", err);
+    console.error("[anmeldung] Status-Abfrage fehlgeschlagen:", err);
+  }
+
+  // Ohne SMTP kann keine Bestätigungsmail raus → Download direkt ausliefern (Fallback)
+  if (alreadyActive || !isMailConfigured()) {
+    try {
+      const mail = buildDownloadEmail({ documents: selectedDocs, baseUrl, lang });
+      await sendMail({ to: cleanEmail, ...mail });
+    } catch (err) {
+      console.error("[anmeldung] Download-Mail fehlgeschlagen:", err);
+    }
+    return NextResponse.json({ ok: true, confirmed: true, links });
+  }
+
+  // Neue Adresse: als ausstehend in CleverReach anlegen (Lead sichern)
+  try {
+    await addContactPending({
+      email: cleanEmail,
+      lang,
+      wantsGuideline: selectedDocs.includes("guidelines"),
+      newsletter: newsletter === true,
+      source: source || "Whitepaper Landingpage",
+    });
+  } catch (err) {
+    console.error("[anmeldung] CleverReach (pending) fehlgeschlagen:", err);
+  }
+
+  // Eigene Bestätigungsmail mit Bestätigungs-/Download-Link senden
+  const token = createConfirmToken({
+    email: cleanEmail,
+    documents: selectedDocs,
+    newsletter: newsletter === true,
+    lang,
+  });
+  const confirmUrl = `${baseUrl.replace(/\/$/, "")}/bestaetigen?token=${token}`;
+
+  try {
+    const mail = buildConfirmEmail({
+      confirmUrl,
+      documents: selectedDocs,
+      lang,
+      baseUrl,
+    });
+    await sendMail({ to: cleanEmail, ...mail });
+  } catch (err) {
+    console.error("[anmeldung] Bestätigungsmail fehlgeschlagen:", err);
     return NextResponse.json(
       { error: "Der E-Mail-Versand ist fehlgeschlagen. Bitte später erneut versuchen." },
       { status: 502 }
     );
   }
 
-  // 2. Newsletter (optional) – nur bei Zustimmung, mit Double-Opt-in via CleverReach
-  if (newsletter === true) {
-    try {
-      await subscribeToNewsletter({
-        email: email.trim(),
-        lang,
-        wantsGuideline: selectedDocs.includes("guidelines"),
-        source: source || "Whitepaper Landingpage",
-        userIp:
-          req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "",
-        userAgent: req.headers.get("user-agent") || "",
-      });
-    } catch (err) {
-      // Newsletter-Fehler darf den Download nicht blockieren
-      console.error("[anmeldung] CleverReach-Anmeldung fehlgeschlagen:", err);
-    }
-  }
-
-  return NextResponse.json({ ok: true, links });
+  return NextResponse.json({ ok: true, confirmed: false });
 }

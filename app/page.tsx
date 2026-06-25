@@ -35,8 +35,9 @@ export default function Home() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{
+    confirmed: boolean;
     links: SuccessLink[];
-    newsletter: boolean;
+    email: string;
   } | null>(null);
 
   const isValidEmail = (v: string) =>
@@ -99,7 +100,11 @@ export default function Home() {
       }
 
       const data = await res.json();
-      setSuccess({ links: data.links ?? [], newsletter });
+      setSuccess({
+        confirmed: data.confirmed !== false,
+        links: data.links ?? [],
+        email: email.trim(),
+      });
     } catch (err) {
       setSubmitError(
         err instanceof Error
@@ -479,8 +484,8 @@ export default function Home() {
                 )}
               </form>
             </div>
-          ) : (
-            /* Success state */
+          ) : success.confirmed ? (
+            /* Sofort verfügbar (Bestandskontakt / direkt) */
             <div className="success-panel">
               <div className="success-icon">
                 <svg
@@ -498,16 +503,8 @@ export default function Home() {
               </div>
               <h3>Vielen Dank!</h3>
               <p>
-                Wir haben Ihnen eine E-Mail mit Ihren Download-Links gesendet.
-                {success.newsletter && (
-                  <>
-                    <br />
-                    Bitte bestätigen Sie zusätzlich Ihre Newsletter-Anmeldung
-                    über den Link in der separaten Bestätigungs-E-Mail.
-                  </>
-                )}
-                <br />
-                Sie können die Dokumente auch direkt hier herunterladen:
+                Hier sind Ihre angeforderten Dokumente – wir haben sie Ihnen
+                zusätzlich per E-Mail geschickt:
               </p>
               <div className="success-links">
                 {success.links.map((link) => (
@@ -533,6 +530,34 @@ export default function Home() {
                   </a>
                 ))}
               </div>
+            </div>
+          ) : (
+            /* Bestätigung nötig (neue Adresse) */
+            <div className="success-panel">
+              <div className="success-icon">
+                <svg
+                  width="26"
+                  height="26"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="white"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 4h16v16H4zM4 7l8 5 8-5" />
+                </svg>
+              </div>
+              <h3>Fast geschafft!</h3>
+              <p>
+                Wir haben eine Bestätigungs-E-Mail an{" "}
+                <strong>{success.email}</strong> gesendet. Bitte klicken Sie auf
+                den Link darin – danach stehen Ihre Dokumente sofort zum Download
+                bereit.
+                <br />
+                <br />
+                Keine E-Mail erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.
+              </p>
             </div>
           )}
         </div>
