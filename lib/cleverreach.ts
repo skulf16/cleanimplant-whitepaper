@@ -16,14 +16,18 @@ const API_BASE = "https://rest.cleverreach.com/v3";
 const TOKEN_URL = "https://rest.cleverreach.com/oauth/token.php";
 
 async function getAccessToken(): Promise<string> {
+  // CleverReach erwartet client_id/secret per HTTP-Basic-Auth, grant_type im Body
+  const basic = Buffer.from(
+    `${process.env.CLEVERREACH_CLIENT_ID}:${process.env.CLEVERREACH_CLIENT_SECRET}`
+  ).toString("base64");
+
   const res = await fetch(TOKEN_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: process.env.CLEVERREACH_CLIENT_ID || "",
-      client_secret: process.env.CLEVERREACH_CLIENT_SECRET || "",
-    }),
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ grant_type: "client_credentials" }),
   });
   if (!res.ok) {
     throw new Error(`CleverReach Auth fehlgeschlagen (${res.status})`);
