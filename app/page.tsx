@@ -134,17 +134,18 @@ export default function Home() {
       <main>
         {/* Left: document preview */}
         <div className="doc-preview">
-          <p className="eyebrow">Wissenschaftliche Publikation · 2026</p>
+          <p className="eyebrow">CleanImplant Sonder-Publikationen</p>
 
           <h1>
-            Die übersehene Variable
+            Peri-implantitis und der
             <br />
-            bei <em>Periimplantitis</em>
+            <em>übersehene Risikofaktor</em>
           </h1>
 
           <p className="subtitle">
-            Oberflächenkontamination, Patientensicherheit und die eine
-            Entscheidung, die jeder Behandler treffen kann.
+            Whitepaper zu klinischen und wirtschaftlichen Implikationen für
+            Zahnärztinnen und Zahnärzte, für implantologische und
+            implantatprothetische Praxen und Überweiser.
           </p>
 
           <div className="covers-wrap">
