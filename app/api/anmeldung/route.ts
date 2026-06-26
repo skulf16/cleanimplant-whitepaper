@@ -28,12 +28,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
 
-  const { email, documents, newsletter, source } = (body ?? {}) as {
+  const { email, documents, roles, newsletter, source } = (body ?? {}) as {
     email?: string;
     documents?: unknown[];
+    roles?: string[];
     newsletter?: boolean;
     source?: string;
   };
+
+  const profession = Array.isArray(roles) ? roles.join(", ") : "";
 
   if (!email || !isValidEmail(email)) {
     return NextResponse.json(
@@ -91,6 +94,7 @@ export async function POST(req: NextRequest) {
       lang,
       wantsGuideline: selectedDocs.includes("guidelines"),
       newsletter: newsletter === true,
+      profession,
       source: source || "Whitepaper Landingpage",
     });
   } catch (err) {

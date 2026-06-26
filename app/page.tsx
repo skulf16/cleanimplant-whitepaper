@@ -32,6 +32,7 @@ export default function Home() {
 
   const [emailError, setEmailError] = useState(false);
   const [docError, setDocError] = useState(false);
+  const [roleError, setRoleError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{
@@ -65,17 +66,18 @@ export default function Home() {
 
     const emailOk = isValidEmail(email);
     const hasWhitepaper = docs.whitepaper_de || docs.whitepaper_en;
+    const selectedRoles = Object.keys(role).filter((r) => role[r]);
+    const hasRole = selectedRoles.length > 0;
 
     setEmailError(!emailOk);
+    setRoleError(!hasRole);
     if (!hasWhitepaper) {
       // Sicherheitsnetz: zurück zu Schritt 1
       setDocError(true);
       setStep(1);
       return;
     }
-    if (!emailOk) return;
-
-    const selectedRoles = Object.keys(role).filter((r) => role[r]);
+    if (!emailOk || !hasRole) return;
 
     setSubmitting(true);
     try {
@@ -148,13 +150,73 @@ export default function Home() {
             implantatprothetische Praxen und Überweiser.
           </p>
 
-          <div className="covers-wrap">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/whitepaper-covers.png"
-              alt="CleanImplant Whitepaper – Deutsch und English"
-              className="covers-img"
-            />
+          <div className="hero-row">
+            <div className="covers-wrap">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/whitepaper-covers.png"
+                alt="CleanImplant Whitepaper – Deutsch und English"
+                className="covers-img"
+              />
+            </div>
+
+            {/* Guideline – oben rechts neben den Whitepapern, klickbar (synchron mit Auswahl) */}
+            <button
+              type="button"
+              className={`guideline-promo${docs.guidelines ? " selected" : ""}`}
+              onClick={() => toggleDoc("guidelines")}
+              aria-pressed={docs.guidelines}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/guideline-cover.png"
+                alt="CleanImplant Quality Guidelines"
+                className="guideline-promo-cover"
+              />
+              <span className="guideline-promo-body">
+                <span className="guideline-promo-eyebrow">
+                  Empfehlung · kostenlos dazu
+                </span>
+                <strong className="guideline-promo-title">
+                  CleanImplant Quality Guidelines
+                </strong>
+                <span className="guideline-promo-action">
+                  {docs.guidelines ? (
+                    <>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                      Ausgewählt
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      Hinzufügen
+                    </>
+                  )}
+                </span>
+              </span>
+            </button>
           </div>
 
           <div className="doc-meta">
@@ -363,11 +425,10 @@ export default function Home() {
                       )}
                     </div>
 
-                    {/* Berufsgruppe (optional) */}
+                    {/* Berufsgruppe (Pflicht) */}
                     <div className="field-group">
                       <span className="field-label">
-                        Ich bin …
-                        <span className="optional">optional</span>
+                        Ich bin … <span className="required">*</span>
                       </span>
                       <div className="options-group">
                         <label
@@ -405,6 +466,11 @@ export default function Home() {
                           </span>
                         </label>
                       </div>
+                      {roleError && (
+                        <p className="error-msg visible">
+                          Bitte wählen Sie mindestens eine Angabe.
+                        </p>
+                      )}
                     </div>
 
                     {/* Newsletter opt-in */}

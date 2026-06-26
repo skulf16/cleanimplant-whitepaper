@@ -158,6 +158,8 @@ interface PendingArgs {
   lang?: "de" | "en";
   wantsGuideline?: boolean;
   newsletter?: boolean;
+  /** Berufsgruppe(n) → Feld `profession` */
+  profession?: string;
   source?: string;
 }
 
@@ -171,6 +173,7 @@ export async function addContactPending({
   lang = "de",
   wantsGuideline = false,
   newsletter = false,
+  profession = "",
   source = "Whitepaper Landingpage",
 }: PendingArgs): Promise<void> {
   if (!isCleverReachConfigured()) {
@@ -191,6 +194,7 @@ export async function addContactPending({
       global_attributes: {
         language: lang === "en" ? "Englisch" : "Deutsch",
         newsletter: newsletter ? "Ja" : "Nein",
+        profession,
         quelle: source,
       },
       attributes: { guideline: wantsGuideline ? "Ja" : "Nein" },

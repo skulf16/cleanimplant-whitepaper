@@ -187,16 +187,123 @@ main {
   text-transform: uppercase;
 }
 
-/* Whitepaper-Cover (DE + EN, kombiniert) */
+/* Hero-Zeile: Whitepaper-Cover links, Guideline oben rechts daneben */
+.hero-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+/* Whitepaper-Cover (DE + EN, kombiniert) – nach links gerückt */
 .covers-wrap {
-  margin: -12px 0 16px -12px;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: -10px 0 0 -16px;
 }
 
 .covers-img {
   width: 100%;
-  max-width: 480px;
+  max-width: 340px;
   height: auto;
   display: block;
+}
+
+/* Guideline – eigenständige, hervorgehobene, klickbare Karte (kompakt, vertikal) */
+.guideline-promo {
+  flex: 0 0 172px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  text-align: left;
+  margin-top: 6px;
+  padding: 12px;
+  border: 1.5px solid var(--ci-blue-lt);
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, rgba(72, 165, 197, 0.10), rgba(72, 165, 197, 0.04));
+  box-shadow: 0 4px 18px rgba(12, 47, 77, 0.08);
+  cursor: pointer;
+  font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+  transition: border-color var(--transition), box-shadow var(--transition),
+    transform var(--transition), background var(--transition);
+}
+
+.guideline-promo:hover {
+  border-color: var(--ci-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(12, 47, 77, 0.14);
+}
+
+.guideline-promo.selected {
+  border-color: var(--ci-blue);
+  background: rgba(72, 165, 197, 0.14);
+}
+
+.guideline-promo-cover {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.guideline-promo-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (max-width: 560px) {
+  .hero-row {
+    flex-direction: column;
+  }
+  .guideline-promo {
+    flex-direction: row;
+    align-items: center;
+    flex-basis: auto;
+    width: 100%;
+    gap: 14px;
+  }
+  .guideline-promo-cover {
+    width: 84px;
+    flex-shrink: 0;
+  }
+}
+
+.guideline-promo-eyebrow {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ci-blue);
+}
+
+.guideline-promo-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ci-navy);
+  line-height: 1.25;
+}
+
+.guideline-promo-text {
+  font-size: 0.76rem;
+  color: var(--ci-muted);
+  line-height: 1.5;
+}
+
+.guideline-promo-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ci-blue);
+}
+
+.guideline-promo.selected .guideline-promo-action {
+  color: var(--ci-blue-dk);
 }
 
 .doc-meta {
