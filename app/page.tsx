@@ -23,11 +23,8 @@ export default function Home() {
     whitepaper_en: false,
     guidelines: false,
   });
-  const [role, setRole] = useState<Record<string, boolean>>({
-    dentist: false,
-    patient: false,
-    industry: false,
-  });
+  const [role, setRole] = useState<string>("");
+  const [roleOther, setRoleOther] = useState("");
   const [newsletter, setNewsletter] = useState(false);
 
   const [emailError, setEmailError] = useState(false);
@@ -47,10 +44,10 @@ export default function Home() {
   const toggleDoc = (id: DocId) =>
     setDocs((prev) => ({ ...prev, [id]: !prev[id] }));
 
-  const toggleRole = (id: string) =>
-    setRole((prev) => ({ ...prev, [id]: !prev[id] }));
-
   const selectedDocIds = (Object.keys(docs) as DocId[]).filter((d) => docs[d]);
+
+  // Gewählte Berufsgruppe als Klartext (bei „Sonstiges" der eingegebene Wert)
+  const roleValue = role === "other" ? roleOther.trim() : role;
 
   // Schritt 1 → 2: mindestens ein Whitepaper muss gewählt sein
   function goToStep2() {
@@ -66,8 +63,7 @@ export default function Home() {
 
     const emailOk = isValidEmail(email);
     const hasWhitepaper = docs.whitepaper_de || docs.whitepaper_en;
-    const selectedRoles = Object.keys(role).filter((r) => role[r]);
-    const hasRole = selectedRoles.length > 0;
+    const hasRole = roleValue.length > 0;
 
     setEmailError(!emailOk);
     setRoleError(!hasRole);
@@ -87,7 +83,7 @@ export default function Home() {
         body: JSON.stringify({
           email: email.trim(),
           documents: selectedDocIds,
-          roles: selectedRoles,
+          roles: [roleValue],
           newsletter,
           source:
             typeof document !== "undefined"
@@ -432,43 +428,69 @@ export default function Home() {
                       </span>
                       <div className="options-group">
                         <label
-                          className={`option-item${role.dentist ? " selected" : ""}`}
+                          className={`option-item${role === "dentist" ? " selected" : ""}`}
                         >
                           <input
-                            type="checkbox"
-                            checked={role.dentist}
-                            onChange={() => toggleRole("dentist")}
+                            type="radio"
+                            name="role"
+                            checked={role === "dentist"}
+                            onChange={() => setRole("dentist")}
                           />
                           <span className="option-label">
                             Zahnarzt / Zahnärztin
                           </span>
                         </label>
                         <label
-                          className={`option-item${role.patient ? " selected" : ""}`}
+                          className={`option-item${role === "patient" ? " selected" : ""}`}
                         >
                           <input
-                            type="checkbox"
-                            checked={role.patient}
-                            onChange={() => toggleRole("patient")}
+                            type="radio"
+                            name="role"
+                            checked={role === "patient"}
+                            onChange={() => setRole("patient")}
                           />
                           <span className="option-label">Patient / Patientin</span>
                         </label>
                         <label
-                          className={`option-item${role.industry ? " selected" : ""}`}
+                          className={`option-item${role === "industry" ? " selected" : ""}`}
                         >
                           <input
-                            type="checkbox"
-                            checked={role.industry}
-                            onChange={() => toggleRole("industry")}
+                            type="radio"
+                            name="role"
+                            checked={role === "industry"}
+                            onChange={() => setRole("industry")}
                           />
                           <span className="option-label">
                             Dentalhandel / Hersteller
                           </span>
                         </label>
+                        <label
+                          className={`option-item${role === "other" ? " selected" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="role"
+                            checked={role === "other"}
+                            onChange={() => setRole("other")}
+                          />
+                          <span className="option-label">Sonstiges</span>
+                        </label>
                       </div>
+                      {role === "other" && (
+                        <input
+                          type="text"
+                          className="role-other-input"
+                          placeholder="Bitte angeben"
+                          value={roleOther}
+                          onChange={(e) => setRoleOther(e.target.value)}
+                          autoFocus
+                        />
+                      )}
                       {roleError && (
                         <p className="error-msg visible">
-                          Bitte wählen Sie mindestens eine Angabe.
+                          {role === "other"
+                            ? "Bitte tragen Sie Ihre Angabe ein."
+                            : "Bitte wählen Sie eine Angabe."}
                         </p>
                       )}
                     </div>

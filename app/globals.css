@@ -569,7 +569,8 @@ input[type="email"].error { border-color: var(--ci-error); }
   background: rgba(72, 165, 197, 0.08);
 }
 
-.option-item input[type="checkbox"] {
+.option-item input[type="checkbox"],
+.option-item input[type="radio"] {
   appearance: none;
   -webkit-appearance: none;
   width: 18px;
@@ -583,12 +584,14 @@ input[type="email"].error { border-color: var(--ci-error); }
   position: relative;
 }
 
-.option-item input[type="checkbox"]:checked {
+.option-item input[type="checkbox"]:checked,
+.option-item input[type="radio"]:checked {
   background: var(--ci-blue);
   border-color: var(--ci-blue);
 }
 
-.option-item input[type="checkbox"]:checked::after {
+.option-item input[type="checkbox"]:checked::after,
+.option-item input[type="radio"]:checked::after {
   content: '';
   position: absolute;
   left: 4px;
@@ -599,6 +602,29 @@ input[type="email"].error { border-color: var(--ci-error); }
   border-top: none;
   border-left: none;
   transform: rotate(45deg);
+}
+
+/* Freitext „Sonstiges" */
+.role-other-input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 16px;
+  border: 1.5px solid var(--ci-border);
+  border-radius: var(--radius-pill);
+  font-family: 'Montserrat', Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--ci-navy);
+  background: var(--ci-blue-bg);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition),
+    background var(--transition);
+}
+
+.role-other-input:focus {
+  border-color: var(--ci-blue);
+  box-shadow: 0 0 0 3px rgba(72, 165, 197, 0.15);
+  background: var(--ci-white);
 }
 
 .option-label {
