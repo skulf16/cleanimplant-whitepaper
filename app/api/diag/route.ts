@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyMail } from "@/lib/mailer";
-import { crTestSubscribe } from "@/lib/cleverreach";
+import { crTestSubscribe, crLookupReceiver } from "@/lib/cleverreach";
 
 export const runtime = "nodejs";
 
@@ -14,6 +14,12 @@ export async function GET(req: NextRequest) {
 
   const email = req.nextUrl.searchParams.get("email") || "diag@example.com";
   const runCr = req.nextUrl.searchParams.get("cr") !== "0";
+
+  // Status-Abfrage: ist diese Adresse in der Gruppe aktiv?
+  const statusEmail = req.nextUrl.searchParams.get("status");
+  if (statusEmail) {
+    return NextResponse.json({ receiver: await crLookupReceiver(statusEmail) });
+  }
 
   // Welche Variablen erreichen den Container? (nur Präsenz, keine Werte)
   const has = (k: string) => Boolean(process.env[k] && process.env[k]!.length);

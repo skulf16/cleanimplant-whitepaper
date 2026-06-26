@@ -114,26 +114,42 @@ async function authedHeaders() {
 }
 
 /**
- * Prüft, ob die Adresse bereits ein aktiver (bestätigter) Empfänger ist –
- * kontoweit. Bestandskontakte bekommen so den Download sofort.
+ * Prüft, ob die Adresse in der Gruppe bereits ein aktiver (bestätigter)
+ * Empfänger ist. Bestandskontakte bekommen so den Download sofort.
+ * Der Gruppen-Endpoint liefert ein verlässliches `active`-Flag.
  */
 export async function isContactActive(email: string): Promise<boolean> {
   if (!isCleverReachConfigured()) return false;
   try {
+    const groupId = process.env.CLEVERREACH_GROUP_ID;
     const headers = await authedHeaders();
     const res = await fetch(
-      `${API_BASE}/receivers.json/${encodeURIComponent(email)}`,
+      `${API_BASE}/groups.json/${groupId}/receivers/${encodeURIComponent(email)}`,
       { headers }
     );
-    if (!res.ok) return false;
+    if (!res.ok) return false; // 404 = nicht in der Gruppe
     const d = await res.json();
-    return (
-      Boolean(d) &&
-      Number(d.activated) > 0 &&
-      Number(d.deactivated) === 0
-    );
+    if (d?.active === true) return true;
+    return Number(d?.activated) > 0 && Number(d?.deactivated) === 0;
   } catch {
     return false;
+  }
+}
+
+/** Diagnose: roher Empfänger-Status in der Gruppe. */
+export async function crLookupReceiver(email: string): Promise<unknown> {
+  if (!isCleverReachConfigured()) return { error: "nicht konfiguriert" };
+  try {
+    const groupId = process.env.CLEVERREACH_GROUP_ID;
+    const headers = await authedHeaders();
+    const res = await fetch(
+      `${API_BASE}/groups.json/${groupId}/receivers/${encodeURIComponent(email)}`,
+      { headers }
+    );
+    const body = await res.json().catch(() => null);
+    return { status: res.status, active: await isContactActive(email), body };
+  } catch (e) {
+    return { error: String(e) };
   }
 }
 
