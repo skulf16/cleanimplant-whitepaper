@@ -146,130 +146,87 @@ export default function Home() {
             implantatprothetische Praxen und Überweiser.
           </p>
 
-          <div className="hero-row">
-            <div className="covers-wrap">
+          <div className="covers-row">
+            <figure className="cover-figure">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/whitepaper-covers.png"
-                alt="CleanImplant Whitepaper – Deutsch und English"
-                className="covers-img"
+                src="/whitepaper-de-cover.png"
+                alt="CleanImplant Whitepaper (Deutsch)"
               />
-            </div>
+              <figcaption>Deutsch</figcaption>
+            </figure>
+            <figure className="cover-figure">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/whitepaper-en-cover.png"
+                alt="CleanImplant Whitepaper (English)"
+              />
+              <figcaption>English</figcaption>
+            </figure>
+          </div>
 
-            {/* Guideline – oben rechts neben den Whitepapern, klickbar (synchron mit Auswahl) */}
-            <button
-              type="button"
-              className={`guideline-promo${docs.guidelines ? " selected" : ""}`}
-              onClick={() => toggleDoc("guidelines")}
-              aria-pressed={docs.guidelines}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/guideline-cover.png"
-                alt="CleanImplant Quality Guidelines"
-                className="guideline-promo-cover"
-              />
-              <span className="guideline-promo-body">
-                <span className="guideline-promo-eyebrow">
-                  Empfehlung · kostenlos dazu
-                </span>
-                <strong className="guideline-promo-title">
-                  CleanImplant Quality Guidelines
-                </strong>
-                <span className="guideline-promo-action">
-                  {docs.guidelines ? (
-                    <>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M5 13l4 4L19 7" />
-                      </svg>
-                      Ausgewählt
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                      Hinzufügen
-                    </>
-                  )}
-                </span>
+          {/* Guideline-Banner – unter dem Whitepaper, klickbar (synchron mit Auswahl) */}
+          <button
+            type="button"
+            className={`guideline-promo${docs.guidelines ? " selected" : ""}`}
+            onClick={() => toggleDoc("guidelines")}
+            aria-pressed={docs.guidelines}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/guideline-cover.png"
+              alt="CleanImplant Quality Guidelines"
+              className="guideline-promo-cover"
+            />
+            <span className="guideline-promo-body">
+              <strong className="guideline-promo-title">
+                CleanImplant Guideline für saubere Dentalimplantate
+              </strong>
+              <span className="guideline-promo-text">
+                Verfahrensbeschreibung und Leistungskriterien für das
+                CleanImplant Trusted Quality Seal
               </span>
-            </button>
-          </div>
-
-          <div className="doc-meta">
-            <strong>CleanImplant Whitepaper 2026</strong>
-            CleanImplant Foundation · Berlin · New York · PDF
-          </div>
-
-          {/* Trust badges */}
-          <div className="trust-badges">
-            <div className="badge">
-              <div className="badge-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-              </div>
-              Kostenlos
-            </div>
-            <div className="badge">
-              <div className="badge-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-              </div>
-              DSGVO-konform
-            </div>
-            <div className="badge">
-              <div className="badge-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                  <polyline points="14 2 14 8 20 8" />
-                </svg>
-              </div>
-              PDF-Format
-            </div>
-          </div>
+              <span className="guideline-promo-meta">
+                Vollständige konsensbasierte Leitlinie · überarbeitet 2025 ·
+                28 Seiten, 50 REM-Aufnahmen
+              </span>
+              <span className="guideline-promo-action">
+                {docs.guidelines ? (
+                  <>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                    Ausgewählt
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    Hinzufügen
+                  </>
+                )}
+              </span>
+            </span>
+          </button>
         </div>
 
         {/* Right: form */}
