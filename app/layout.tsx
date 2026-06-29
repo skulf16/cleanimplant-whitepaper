@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Whitepaper herunterladen – CleanImplant Foundation",
+  title: "White Paper herunterladen – CleanImplant Foundation",
   description:
-    "Laden Sie das CleanImplant Whitepaper zu Periimplantitis sowie die aktuellen Guidelines kostenlos herunter.",
+    "Laden Sie das CleanImplant White Paper zu Peri-Implantitis sowie die aktuelle CleanImplant Guideline kostenlos herunter.",
 };
 
 export default function RootLayout({

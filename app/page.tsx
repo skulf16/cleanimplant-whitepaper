@@ -5,8 +5,8 @@ import { useState } from "react";
 type DocId = "whitepaper_de" | "whitepaper_en" | "guidelines";
 
 const DOC_LABELS: Record<DocId, string> = {
-  whitepaper_de: "Whitepaper Deutsch",
-  whitepaper_en: "Whitepaper English",
+  whitepaper_de: "White Paper Deutsch",
+  whitepaper_en: "White Paper English",
   guidelines: "Guidelines",
 };
 
@@ -141,7 +141,7 @@ export default function Home() {
           </h1>
 
           <p className="subtitle">
-            Whitepaper zu klinischen und wirtschaftlichen Implikationen für
+            White Paper zu klinischen und wirtschaftlichen Implikationen für
             Zahnärztinnen und Zahnärzte, für implantologische und
             implantatprothetische Praxen und Überweiser.
           </p>
@@ -151,7 +151,7 @@ export default function Home() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/whitepaper-de-cover.png"
-                alt="CleanImplant Whitepaper (Deutsch)"
+                alt="CleanImplant White Paper (Deutsch)"
               />
               <figcaption>Deutsch</figcaption>
             </figure>
@@ -159,7 +159,7 @@ export default function Home() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/whitepaper-en-cover.png"
-                alt="CleanImplant Whitepaper (English)"
+                alt="CleanImplant White Paper (English)"
               />
               <figcaption>English</figcaption>
             </figure>
@@ -265,8 +265,7 @@ export default function Home() {
                   <>
                     <div className="field-group">
                       <span className="field-label">
-                        Welches Whitepaper möchten Sie?{" "}
-                        <span className="required">*</span>
+                        Sprache auswählen <span className="required">*</span>
                       </span>
                       <div className="options-group">
                         <label
@@ -277,7 +276,7 @@ export default function Home() {
                             checked={docs.whitepaper_de}
                             onChange={() => toggleDoc("whitepaper_de")}
                           />
-                          <span className="option-label">Whitepaper Deutsch</span>
+                          <span className="option-label">White Paper Deutsch</span>
                           <span className="option-flag">DE</span>
                         </label>
                         <label
@@ -288,7 +287,7 @@ export default function Home() {
                             checked={docs.whitepaper_en}
                             onChange={() => toggleDoc("whitepaper_en")}
                           />
-                          <span className="option-label">Whitepaper English</span>
+                          <span className="option-label">White Paper English</span>
                           <span className="option-flag">EN</span>
                         </label>
                       </div>
@@ -310,9 +309,10 @@ export default function Home() {
                           onChange={() => toggleDoc("guidelines")}
                         />
                         <span className="cta-label">
-                          <strong>Neue Guidelines gleich mitnehmen</strong>
-                          Senden Sie mir zusätzlich die aktuellen CleanImplant
-                          Quality Guidelines – kostenlos und im selben Schritt.
+                          <strong>CleanImplant Guideline (Revision 2025)</strong>
+                          Senden Sie mir zusätzlich die aktuelle
+                          CleanImplant-Leitlinie mit Leistungskriterien für
+                          saubere Implantate (PDF in Englisch).
                         </span>
                       </label>
                     </div>
@@ -512,7 +512,7 @@ export default function Home() {
                             <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12" />
                           </svg>
                         )}
-                        {submitting ? "Wird gesendet …" : "Whitepaper anfordern"}
+                        {submitting ? "Wird gesendet …" : "White Paper anfordern"}
                       </button>
                     </div>
 

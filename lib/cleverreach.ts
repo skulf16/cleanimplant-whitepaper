@@ -174,7 +174,7 @@ export async function addContactPending({
   wantsGuideline = false,
   newsletter = false,
   profession = "",
-  source = "Whitepaper Landingpage",
+  source = "White Paper Landingpage",
 }: PendingArgs): Promise<void> {
   if (!isCleverReachConfigured()) {
     console.warn(`[cleverreach] Nicht konfiguriert – ${email} nicht übertragen.`);
@@ -260,7 +260,7 @@ export async function subscribeToNewsletter({
   email,
   lang = "de",
   wantsGuideline = false,
-  source = "Whitepaper Landingpage",
+  source = "White Paper Landingpage",
   userIp = "",
   userAgent = "",
 }: SubscribeArgs): Promise<void> {

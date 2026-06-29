@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
   if (!hasWhitepaper) {
     return NextResponse.json(
-      { error: "Bitte wählen Sie mindestens ein Whitepaper aus." },
+      { error: "Bitte wählen Sie mindestens ein White Paper aus." },
       { status: 400 }
     );
   }
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
       wantsGuideline: selectedDocs.includes("guidelines"),
       newsletter: newsletter === true,
       profession,
-      source: source || "Whitepaper Landingpage",
+      source: source || "White Paper Landingpage",
     });
   } catch (err) {
     console.error("[anmeldung] CleverReach (pending) fehlgeschlagen:", err);

@@ -60,7 +60,7 @@ export default async function ConfirmPage({
         <div className="success-panel">
           <p>
             Dieser Bestätigungslink ist nicht (mehr) gültig. Bitte fordern Sie
-            das Whitepaper erneut an.
+            das White Paper erneut an.
           </p>
           <a href="/" className="btn-direct-download">
             Zurück zum Formular
