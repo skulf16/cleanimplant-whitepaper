@@ -6,10 +6,12 @@ export type DocumentId = "whitepaper_de" | "whitepaper_en" | "guidelines";
 
 export interface DocumentDef {
   id: DocumentId;
-  /** Anzeigename im Formular und in der E-Mail */
+  /** Anzeigename in E-Mail, Download-Links und Bestätigungsseite */
   label: string;
-  /** Dateiname in /public/downloads/ */
+  /** Dateiname im geschützten Ordner (protected-downloads/) */
   file: string;
+  /** Sauberer Dateiname beim Download (Content-Disposition) */
+  downloadName: string;
   /** Sprache des Dokuments – steuert u. a. die E-Mail-Sprache */
   lang: "de" | "en";
 }
@@ -17,20 +19,25 @@ export interface DocumentDef {
 export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
   whitepaper_de: {
     id: "whitepaper_de",
-    label: "Whitepaper „Die übersehene Variable bei Periimplantitis“ (Deutsch)",
+    label: "WHITE PAPER „PERI-IMPLANTITIS UND DER ÜBERSEHENE RISIKOFAKTOR“",
     file: "whitepaper-de.pdf",
+    downloadName:
+      "CleanImplant White Paper - Peri-Implantitis und der übersehene Risikofaktor.pdf",
     lang: "de",
   },
   whitepaper_en: {
     id: "whitepaper_en",
-    label: "Whitepaper „The Overlooked Variable in Peri-Implantitis“ (English)",
+    label: "WHITE PAPER „THE MISSING VARIABLE IN PERI-IMPLANTITIS“",
     file: "whitepaper-en.pdf",
+    downloadName:
+      "CleanImplant White Paper - The Missing Variable in Peri-Implantitis.pdf",
     lang: "en",
   },
   guidelines: {
     id: "guidelines",
-    label: "CleanImplant Quality Guidelines",
+    label: "CLEANIMPLANT GUIDELINE (REVISION 2025)",
     file: "guidelines.pdf",
+    downloadName: "CleanImplant Guideline (Revision 2025).pdf",
     lang: "en",
   },
 };

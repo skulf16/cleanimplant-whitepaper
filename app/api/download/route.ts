@@ -22,11 +22,16 @@ export async function GET(req: NextRequest) {
 
   try {
     const data = await fs.readFile(filePath);
+    // Sauberer Dateiname; ASCII-Fallback + UTF-8 (RFC 5987) für Umlaute
+    const name = doc.downloadName;
+    const asciiName = name.replace(/[^\x20-\x7E]/g, "_");
     return new NextResponse(new Uint8Array(data), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="${doc.file}"`,
+        "Content-Disposition": `attachment; filename="${asciiName}"; filename*=UTF-8''${encodeURIComponent(
+          name
+        )}`,
         // Privater Inhalt – nicht in geteilten Caches ablegen
         "Cache-Control": "private, no-store",
       },
