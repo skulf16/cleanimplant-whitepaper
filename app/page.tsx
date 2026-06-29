@@ -175,12 +175,12 @@ export default function Home() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/guideline-cover.png"
-              alt="CleanImplant Quality Guidelines"
+              alt="CleanImplant Guideline (Revision 2025)"
               className="guideline-promo-cover"
             />
             <span className="guideline-promo-body">
               <strong className="guideline-promo-title">
-                CleanImplant Guideline für saubere Dentalimplantate
+                CleanImplant Guideline (Revision 2025)
               </strong>
               <span className="guideline-promo-text">
                 Verfahrensbeschreibung und Leistungskriterien für das
