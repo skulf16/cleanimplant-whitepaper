@@ -265,7 +265,8 @@ export default function Home() {
                   <>
                     <div className="field-group">
                       <span className="field-label">
-                        Sprache auswählen <span className="required">*</span>
+                        Verfügbare Sonder-Publikationen{" "}
+                        <span className="required">*</span>
                       </span>
                       <div className="options-group">
                         <label
