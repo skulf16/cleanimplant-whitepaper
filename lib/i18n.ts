@@ -125,10 +125,10 @@ export const T: Record<Locale, Strings> = {
   en: {
     langNav: { de: "DE", en: "EN" },
     eyebrow: "CleanImplant Special Publications",
-    h1a: "The missing variable in",
-    h1em: "peri-implantitis",
+    h1a: "The Missing Variable in",
+    h1em: "Peri-implantitis",
     subtitle:
-      "White Paper on the clinical and economic implications for dentists, for implantology and implant-prosthetic practices and referrers.",
+      "White Paper on Clinical, Reputational and Economic Implications for Dental Practitioners, Dental Clinics, and Referring Prosthodontics.",
     coverDe: "German",
     coverEn: "English",
     guidelineTitle: "CleanImplant Guideline (Revision 2025)",
