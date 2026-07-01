@@ -244,6 +244,14 @@ export default function LandingPage({
                   t.coverEn
                 )}
               </div>
+
+              {/* White-Paper-Beschreibung unter den Covern */}
+              <div className="wp-desc">
+                <h3 className="wp-desc-title">
+                  {t.h1a} {t.h1em}
+                </h3>
+                <p className="wp-desc-text">{t.subtitle}</p>
+              </div>
             </>
           ) : (
             <>
