@@ -6,6 +6,33 @@ import { DOCUMENTS } from "@/lib/documents";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const CONFIRM_STRINGS = {
+  de: {
+    invalidKicker: "Bestätigung",
+    invalidTitle: "Link ungültig oder abgelaufen",
+    invalidText:
+      "Dieser Bestätigungslink ist nicht (mehr) gültig. Bitte fordern Sie das White Paper erneut an.",
+    back: "Zurück zum Formular",
+    okKicker: "Bestätigt",
+    okTitle: "Vielen Dank!",
+    okHead: "Ihre E-Mail ist bestätigt.",
+    okText: "Hier sind Ihre angeforderten Dokumente:",
+    home: "/",
+  },
+  en: {
+    invalidKicker: "Confirmation",
+    invalidTitle: "Link invalid or expired",
+    invalidText:
+      "This confirmation link is no longer valid. Please request the White Paper again.",
+    back: "Back to the form",
+    okKicker: "Confirmed",
+    okTitle: "Thank you!",
+    okHead: "Your email is confirmed.",
+    okText: "Here are your requested documents:",
+    home: "/en",
+  },
+} as const;
+
 async function resolveBaseUrl(): Promise<string> {
   if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
   const h = await headers();
@@ -51,24 +78,24 @@ export default async function ConfirmPage({
   const payload = token ? verifyConfirmToken(token) : null;
 
   if (!payload) {
+    const c = CONFIRM_STRINGS.de;
     return (
       <Shell>
         <div className="form-panel-header">
-          <p>Bestätigung</p>
-          <h2>Link ungültig oder abgelaufen</h2>
+          <p>{c.invalidKicker}</p>
+          <h2>{c.invalidTitle}</h2>
         </div>
         <div className="success-panel">
-          <p>
-            Dieser Bestätigungslink ist nicht (mehr) gültig. Bitte fordern Sie
-            das White Paper erneut an.
-          </p>
-          <a href="/" className="btn-direct-download">
-            Zurück zum Formular
+          <p>{c.invalidText}</p>
+          <a href={c.home} className="btn-direct-download">
+            {c.back}
           </a>
         </div>
       </Shell>
     );
   }
+
+  const c = CONFIRM_STRINGS[payload.lang];
 
   // Kontakt in CleverReach aktivieren (Fehler nicht hart blockieren)
   try {
@@ -86,8 +113,8 @@ export default async function ConfirmPage({
   return (
     <Shell>
       <div className="form-panel-header">
-        <p>Bestätigt</p>
-        <h2>Vielen Dank!</h2>
+        <p>{c.okKicker}</p>
+        <h2>{c.okTitle}</h2>
       </div>
       <div className="success-panel">
         <div className="success-icon">
@@ -104,8 +131,8 @@ export default async function ConfirmPage({
             <path d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3>Ihre E-Mail ist bestätigt.</h3>
-        <p>Hier sind Ihre angeforderten Dokumente:</p>
+        <h3>{c.okHead}</h3>
+        <p>{c.okText}</p>
         <div className="success-links">
           {links.map((link) => (
             <a

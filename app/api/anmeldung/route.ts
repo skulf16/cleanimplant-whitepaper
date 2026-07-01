@@ -28,21 +28,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
 
-  const { email, documents, roles, newsletter, source } = (body ?? {}) as {
+  const { email, documents, roles, newsletter, source, locale } = (body ??
+    {}) as {
     email?: string;
     documents?: unknown[];
     roles?: string[];
     newsletter?: boolean;
     source?: string;
+    locale?: string;
   };
+
+  // Sprache = Seitensprache (Fallback Deutsch)
+  const lang: "de" | "en" = locale === "en" ? "en" : "de";
+  const ERR = {
+    de: {
+      email: "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      wp: "Bitte wählen Sie mindestens ein White Paper aus.",
+      mail: "Der E-Mail-Versand ist fehlgeschlagen. Bitte später erneut versuchen.",
+    },
+    en: {
+      email: "Please enter a valid email address.",
+      wp: "Please select at least one White Paper.",
+      mail: "Sending the email failed. Please try again later.",
+    },
+  }[lang];
 
   const profession = Array.isArray(roles) ? roles.join(", ") : "";
 
   if (!email || !isValidEmail(email)) {
-    return NextResponse.json(
-      { error: "Bitte geben Sie eine gültige E-Mail-Adresse ein." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: ERR.email }, { status: 400 });
   }
   const cleanEmail = email.trim();
 
@@ -55,14 +69,10 @@ export async function POST(req: NextRequest) {
     selectedDocs.includes("whitepaper_en");
 
   if (!hasWhitepaper) {
-    return NextResponse.json(
-      { error: "Bitte wählen Sie mindestens ein White Paper aus." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: ERR.wp }, { status: 400 });
   }
 
   const baseUrl = resolveBaseUrl(req);
-  const lang: "de" | "en" = selectedDocs.includes("whitepaper_de") ? "de" : "en";
   const links = selectedDocs.map((id) => ({
     label: DOCUMENTS[id].label,
     url: signedDownloadUrl(baseUrl, id),
@@ -120,10 +130,7 @@ export async function POST(req: NextRequest) {
     await sendMail({ to: cleanEmail, ...mail });
   } catch (err) {
     console.error("[anmeldung] Bestätigungsmail fehlgeschlagen:", err);
-    return NextResponse.json(
-      { error: "Der E-Mail-Versand ist fehlgeschlagen. Bitte später erneut versuchen." },
-      { status: 502 }
-    );
+    return NextResponse.json({ error: ERR.mail }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true, confirmed: false });
