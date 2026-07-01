@@ -615,7 +615,11 @@ export default function LandingPage({
                             <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12" />
                           </svg>
                         )}
-                        {submitting ? t.submitting : t.submit}
+                        {submitting
+                          ? t.submitting
+                          : isGuideline
+                            ? gv.submit
+                            : t.submit}
                       </button>
                     </div>
 

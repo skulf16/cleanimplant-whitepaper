@@ -69,6 +69,7 @@ export interface GuidelineVariantStrings {
   wpBannerTitle: string;
   wpBannerText: string;
   wpBannerMeta: string;
+  submit: string;
 }
 
 export const GV: Record<Locale, GuidelineVariantStrings> = {
@@ -85,6 +86,7 @@ export const GV: Record<Locale, GuidelineVariantStrings> = {
     wpBannerText:
       "Kostenlos dazu: das White Paper zu klinischen, reputativen und wirtschaftlichen Implikationen.",
     wpBannerMeta: "Verfügbar in Deutsch und Englisch",
+    submit: "Guideline anfordern",
   },
   en: {
     h1a: "CleanImplant Guideline",
@@ -99,6 +101,7 @@ export const GV: Record<Locale, GuidelineVariantStrings> = {
     wpBannerText:
       "Free add-on: the White Paper on clinical, reputational and economic implications.",
     wpBannerMeta: "Available in German and English",
+    submit: "Request Guideline",
   },
 };
 
