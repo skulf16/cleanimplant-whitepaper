@@ -229,21 +229,50 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: 'Montserrat', Helvetica, Arial, sans-serif;
 }
 
 .cover-figure img {
   width: 100%;
   height: auto;
   display: block;
+  transition: transform var(--transition);
 }
 
-.cover-figure figcaption {
+.cover-figure:hover img {
+  transform: translateY(-3px);
+}
+
+.cover-caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ci-muted);
+  padding: 5px 13px;
+  border: 1.5px solid var(--ci-border);
+  border-radius: var(--radius-pill);
+  transition: color var(--transition), background var(--transition),
+    border-color var(--transition);
+}
+
+.cover-figure:hover .cover-caption {
+  border-color: var(--ci-blue);
+  color: var(--ci-navy);
+}
+
+.cover-figure.selected .cover-caption {
+  background: var(--ci-blue);
+  border-color: var(--ci-blue);
+  color: #ffffff;
 }
 
 /* Guideline-Banner – unter dem Whitepaper: Cover links, Text rechts, klickbar */

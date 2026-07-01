@@ -125,6 +125,39 @@ export default function LandingPage({
     }
   }
 
+  const renderCover = (
+    id: DocId,
+    src: string,
+    alt: string,
+    caption: string
+  ) => (
+    <button
+      key={id}
+      type="button"
+      className={`cover-figure${docs[id] ? " selected" : ""}`}
+      onClick={() => toggleDoc(id)}
+      aria-pressed={docs[id]}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={alt} />
+      <span className="cover-caption">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          {docs[id] ? <path d="M5 13l4 4L19 7" /> : <path d="M12 5v14M5 12h14" />}
+        </svg>
+        {caption}
+      </span>
+    </button>
+  );
+
   return (
     <>
       {/* Header */}
@@ -198,22 +231,18 @@ export default function LandingPage({
 
               {/* Darunter: beide White Paper (DE / EN) */}
               <div className="covers-row">
-                <figure className="cover-figure">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/whitepaper-de-cover.png"
-                    alt="CleanImplant White Paper (Deutsch)"
-                  />
-                  <figcaption>{t.coverDe}</figcaption>
-                </figure>
-                <figure className="cover-figure">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/whitepaper-en-cover.png"
-                    alt="CleanImplant White Paper (English)"
-                  />
-                  <figcaption>{t.coverEn}</figcaption>
-                </figure>
+                {renderCover(
+                  "whitepaper_de",
+                  "/whitepaper-de-cover.png",
+                  "CleanImplant White Paper (Deutsch)",
+                  t.coverDe
+                )}
+                {renderCover(
+                  "whitepaper_en",
+                  "/whitepaper-en-cover.png",
+                  "CleanImplant White Paper (English)",
+                  t.coverEn
+                )}
               </div>
             </>
           ) : (
@@ -227,22 +256,18 @@ export default function LandingPage({
               <p className="subtitle">{t.subtitle}</p>
 
               <div className="covers-row">
-                <figure className="cover-figure">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/whitepaper-de-cover.png"
-                    alt="CleanImplant White Paper (Deutsch)"
-                  />
-                  <figcaption>{t.coverDe}</figcaption>
-                </figure>
-                <figure className="cover-figure">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/whitepaper-en-cover.png"
-                    alt="CleanImplant White Paper (English)"
-                  />
-                  <figcaption>{t.coverEn}</figcaption>
-                </figure>
+                {renderCover(
+                  "whitepaper_de",
+                  "/whitepaper-de-cover.png",
+                  "CleanImplant White Paper (Deutsch)",
+                  t.coverDe
+                )}
+                {renderCover(
+                  "whitepaper_en",
+                  "/whitepaper-en-cover.png",
+                  "CleanImplant White Paper (English)",
+                  t.coverEn
+                )}
               </div>
 
               {/* Guideline-Banner (klickbar, synchron mit der Auswahl) */}
