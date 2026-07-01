@@ -140,7 +140,7 @@ export const T: Record<Locale, Strings> = {
     selected: "Selected",
     step1kicker: "Step 1 of 2 · Selection",
     step2kicker: "Step 2 of 2 · Your details",
-    step1title: "Which documents would you like?",
+    step1title: "Which PDF files would you like?",
     step2title: "Where should we send them?",
     doneKicker: "Done",
     doneTitle: "Your downloads",
