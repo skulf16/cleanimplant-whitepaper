@@ -151,7 +151,7 @@ export const T: Record<Locale, Strings> = {
     langError: "Please select at least one language.",
     guidelineCtaTitle: "CleanImplant Guideline (Revision 2025)",
     guidelineCtaText:
-      "Also send me the current CleanImplant guideline with performance criteria for clean implants (PDF in English).",
+      "Please also send me the CleanImplant Guideline with performance criteria for clean implants.",
     next: "Next",
     change: "change",
     emailLabel: "Your email address",
