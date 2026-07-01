@@ -278,6 +278,26 @@ main {
   background: rgba(72, 165, 197, 0.14);
 }
 
+/* Große Variante (Guideline im Vordergrund, /leitlinie) */
+.guideline-promo-lg {
+  max-width: 100%;
+  gap: 22px;
+  padding: 20px;
+  margin: 4px 0 22px;
+}
+
+.guideline-promo-lg .guideline-promo-cover {
+  width: 150px;
+}
+
+.guideline-promo-lg .guideline-promo-title {
+  font-size: 1.12rem;
+}
+
+.guideline-promo-lg .guideline-promo-text {
+  font-size: 0.85rem;
+}
+
 .guideline-promo-cover {
   width: 110px;
   height: auto;

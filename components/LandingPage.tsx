@@ -23,7 +23,6 @@ export default function LandingPage({
   const t = T[locale];
   const gv = GV[locale];
   const isGuideline = variant === "guideline";
-  const addonWp: DocId = locale === "en" ? "whitepaper_en" : "whitepaper_de";
 
   const DOC_SHORT: Record<DocId, string> = {
     whitepaper_de: t.wpDe,
@@ -154,131 +153,139 @@ export default function LandingPage({
         <div className="doc-preview">
           <p className="eyebrow">{t.eyebrow}</p>
 
-          <h1>
-            {isGuideline ? gv.h1a : t.h1a}
-            <br />
-            <em>{isGuideline ? gv.h1em : t.h1em}</em>
-          </h1>
-
-          <p className="subtitle">{isGuideline ? gv.subtitle : t.subtitle}</p>
-
           {isGuideline ? (
-            <div className="covers-row">
-              <figure className="cover-figure">
+            <>
+              {/* Guideline als großer blauer Kasten mit Beschreibung – oben */}
+              <button
+                type="button"
+                className={`guideline-promo guideline-promo-lg${docs.guidelines ? " selected" : ""}`}
+                onClick={() => toggleDoc("guidelines")}
+                aria-pressed={docs.guidelines}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/guideline-cover.png"
                   alt="CleanImplant Guideline (Revision 2025)"
+                  className="guideline-promo-cover"
                 />
-                <figcaption>{gv.guidelineCaption}</figcaption>
-              </figure>
-            </div>
-          ) : (
-            <div className="covers-row">
-              <figure className="cover-figure">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/whitepaper-de-cover.png"
-                  alt="CleanImplant White Paper (Deutsch)"
-                />
-                <figcaption>{t.coverDe}</figcaption>
-              </figure>
-              <figure className="cover-figure">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/whitepaper-en-cover.png"
-                  alt="CleanImplant White Paper (English)"
-                />
-                <figcaption>{t.coverEn}</figcaption>
-              </figure>
-            </div>
-          )}
+                <span className="guideline-promo-body">
+                  <strong className="guideline-promo-title">
+                    {t.guidelineTitle}
+                  </strong>
+                  <span className="guideline-promo-text">{t.guidelineText}</span>
+                  <span className="guideline-promo-meta">{t.guidelineMeta}</span>
+                  <span className="guideline-promo-action">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {docs.guidelines ? (
+                        <path d="M5 13l4 4L19 7" />
+                      ) : (
+                        <path d="M12 5v14M5 12h14" />
+                      )}
+                    </svg>
+                    {docs.guidelines ? t.selected : t.add}
+                  </span>
+                </span>
+              </button>
 
-          {/* Add-on banner (clickable, synced with the selection) */}
-          {isGuideline ? (
-            <button
-              type="button"
-              className={`guideline-promo${docs[addonWp] ? " selected" : ""}`}
-              onClick={() => toggleDoc(addonWp)}
-              aria-pressed={docs[addonWp]}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={
-                  locale === "en"
-                    ? "/whitepaper-en-cover.png"
-                    : "/whitepaper-de-cover.png"
-                }
-                alt="CleanImplant White Paper"
-                className="guideline-promo-cover"
-              />
-              <span className="guideline-promo-body">
-                <strong className="guideline-promo-title">
-                  {gv.wpBannerTitle}
-                </strong>
-                <span className="guideline-promo-text">{gv.wpBannerText}</span>
-                <span className="guideline-promo-meta">{gv.wpBannerMeta}</span>
-                <span className="guideline-promo-action">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    {docs[addonWp] ? (
-                      <path d="M5 13l4 4L19 7" />
-                    ) : (
-                      <path d="M12 5v14M5 12h14" />
-                    )}
-                  </svg>
-                  {docs[addonWp] ? t.selected : t.add}
-                </span>
-              </span>
-            </button>
+              {/* Darunter: beide White Paper (DE / EN) */}
+              <div className="covers-row">
+                <figure className="cover-figure">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/whitepaper-de-cover.png"
+                    alt="CleanImplant White Paper (Deutsch)"
+                  />
+                  <figcaption>{t.coverDe}</figcaption>
+                </figure>
+                <figure className="cover-figure">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/whitepaper-en-cover.png"
+                    alt="CleanImplant White Paper (English)"
+                  />
+                  <figcaption>{t.coverEn}</figcaption>
+                </figure>
+              </div>
+            </>
           ) : (
-            <button
-              type="button"
-              className={`guideline-promo${docs.guidelines ? " selected" : ""}`}
-              onClick={() => toggleDoc("guidelines")}
-              aria-pressed={docs.guidelines}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/guideline-cover.png"
-                alt="CleanImplant Guideline (Revision 2025)"
-                className="guideline-promo-cover"
-              />
-              <span className="guideline-promo-body">
-                <strong className="guideline-promo-title">
-                  {t.guidelineTitle}
-                </strong>
-                <span className="guideline-promo-text">{t.guidelineText}</span>
-                <span className="guideline-promo-meta">{t.guidelineMeta}</span>
-                <span className="guideline-promo-action">
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    {docs.guidelines ? (
-                      <path d="M5 13l4 4L19 7" />
-                    ) : (
-                      <path d="M12 5v14M5 12h14" />
-                    )}
-                  </svg>
-                  {docs.guidelines ? t.selected : t.add}
+            <>
+              <h1>
+                {t.h1a}
+                <br />
+                <em>{t.h1em}</em>
+              </h1>
+
+              <p className="subtitle">{t.subtitle}</p>
+
+              <div className="covers-row">
+                <figure className="cover-figure">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/whitepaper-de-cover.png"
+                    alt="CleanImplant White Paper (Deutsch)"
+                  />
+                  <figcaption>{t.coverDe}</figcaption>
+                </figure>
+                <figure className="cover-figure">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/whitepaper-en-cover.png"
+                    alt="CleanImplant White Paper (English)"
+                  />
+                  <figcaption>{t.coverEn}</figcaption>
+                </figure>
+              </div>
+
+              {/* Guideline-Banner (klickbar, synchron mit der Auswahl) */}
+              <button
+                type="button"
+                className={`guideline-promo${docs.guidelines ? " selected" : ""}`}
+                onClick={() => toggleDoc("guidelines")}
+                aria-pressed={docs.guidelines}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/guideline-cover.png"
+                  alt="CleanImplant Guideline (Revision 2025)"
+                  className="guideline-promo-cover"
+                />
+                <span className="guideline-promo-body">
+                  <strong className="guideline-promo-title">
+                    {t.guidelineTitle}
+                  </strong>
+                  <span className="guideline-promo-text">{t.guidelineText}</span>
+                  <span className="guideline-promo-meta">{t.guidelineMeta}</span>
+                  <span className="guideline-promo-action">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {docs.guidelines ? (
+                        <path d="M5 13l4 4L19 7" />
+                      ) : (
+                        <path d="M12 5v14M5 12h14" />
+                      )}
+                    </svg>
+                    {docs.guidelines ? t.selected : t.add}
+                  </span>
                 </span>
-              </span>
-            </button>
+              </button>
+            </>
           )}
         </div>
 
