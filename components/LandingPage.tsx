@@ -626,7 +626,11 @@ export default function LandingPage({
                     <p className="privacy-note">
                       {t.privacy}
                       <br />
-                      <a href="/datenschutz" target="_blank">
+                      <a
+                        href={t.privacyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
                         {t.privacyLink}
                       </a>
                     </p>

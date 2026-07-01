@@ -48,6 +48,7 @@ export interface Strings {
   submitting: string;
   privacy: string;
   privacyLink: string;
+  privacyUrl: string;
   genericError: string;
   thanksTitle: string;
   thanksText: string;
@@ -160,6 +161,7 @@ export const T: Record<Locale, Strings> = {
     privacy:
       "Ihre Daten werden ausschließlich für den Versand des Downloads und – bei entsprechender Zustimmung – für weitere Informationen der CleanImplant Foundation verwendet. Eine Weitergabe an Dritte erfolgt nicht.",
     privacyLink: "Datenschutzerklärung",
+    privacyUrl: "https://cleanimplant.com/de/data-policy/",
     genericError: "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     thanksTitle: "Vielen Dank!",
     thanksText:
@@ -224,6 +226,7 @@ export const T: Record<Locale, Strings> = {
     privacy:
       "Your data is used solely to send the download and — with your consent — for further information from the CleanImplant Foundation. It is never shared with third parties.",
     privacyLink: "Privacy policy",
+    privacyUrl: "https://cleanimplant.com/en/data-policy/",
     genericError: "Something went wrong. Please try again.",
     thanksTitle: "Thank you!",
     thanksText:
