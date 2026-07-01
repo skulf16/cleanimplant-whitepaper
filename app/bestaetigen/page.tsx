@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { verifyConfirmToken, signedDownloadUrl } from "@/lib/token";
 import { activateContact } from "@/lib/cleverreach";
-import { DOCUMENTS } from "@/lib/documents";
+import { docLabel } from "@/lib/documents";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -106,7 +106,7 @@ export default async function ConfirmPage({
 
   const baseUrl = await resolveBaseUrl();
   const links = payload.documents.map((id) => ({
-    label: DOCUMENTS[id].label,
+    label: docLabel(id, payload.lang),
     url: signedDownloadUrl(baseUrl, id),
   }));
 

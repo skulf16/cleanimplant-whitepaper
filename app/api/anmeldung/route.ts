@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DocumentId, DOCUMENTS, isDocumentId } from "@/lib/documents";
+import { DocumentId, docLabel, isDocumentId } from "@/lib/documents";
 import { buildDownloadEmail, buildConfirmEmail } from "@/lib/email-template";
 import { signedDownloadUrl, createConfirmToken } from "@/lib/token";
 import { sendMail, isMailConfigured } from "@/lib/mailer";
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
   const baseUrl = resolveBaseUrl(req);
   const links = selectedDocs.map((id) => ({
-    label: DOCUMENTS[id].label,
+    label: docLabel(id, lang),
     url: signedDownloadUrl(baseUrl, id),
   }));
 

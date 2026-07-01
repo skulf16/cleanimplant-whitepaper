@@ -1,4 +1,4 @@
-import { DocumentId, DOCUMENTS } from "./documents";
+import { DocumentId, docLabel } from "./documents";
 import { signedDownloadUrl } from "./token";
 
 interface BuildArgs {
@@ -59,7 +59,7 @@ export function buildDownloadEmail({
   const base = baseUrl.replace(/\/$/, "");
 
   const items = documents.map((id) => ({
-    label: DOCUMENTS[id].label,
+    label: docLabel(id, lang),
     url: signedDownloadUrl(baseUrl, id),
   }));
 
@@ -231,7 +231,7 @@ export function buildConfirmEmail({
   const listHtml = documents
     .map(
       (id) =>
-        `<li style="margin:0 0 4px;">${escapeHtml(DOCUMENTS[id].label)}</li>`
+        `<li style="margin:0 0 4px;">${escapeHtml(docLabel(id, lang))}</li>`
     )
     .join("");
 
@@ -298,7 +298,7 @@ export function buildConfirmEmail({
     "",
     c.intro,
     "",
-    `${c.requested} ${documents.map((id) => DOCUMENTS[id].label).join(", ")}`,
+    `${c.requested} ${documents.map((id) => docLabel(id, lang)).join(", ")}`,
     "",
     `${c.button}: ${confirmUrl}`,
     "",

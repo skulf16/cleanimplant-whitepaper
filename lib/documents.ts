@@ -6,20 +6,23 @@ export type DocumentId = "whitepaper_de" | "whitepaper_en" | "guidelines";
 
 export interface DocumentDef {
   id: DocumentId;
-  /** Anzeigename in E-Mail, Download-Links und Bestätigungsseite */
-  label: string;
+  /** Sprachabhängiger Anzeigename (E-Mail, Download-Links, Bestätigungsseite) */
+  label: { de: string; en: string };
   /** Dateiname im geschützten Ordner (protected-downloads/) */
   file: string;
   /** Sauberer Dateiname beim Download (Content-Disposition) */
   downloadName: string;
-  /** Sprache des Dokuments – steuert u. a. die E-Mail-Sprache */
+  /** Sprache des Dokuments */
   lang: "de" | "en";
 }
 
 export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
   whitepaper_de: {
     id: "whitepaper_de",
-    label: "WHITE PAPER „PERI-IMPLANTITIS UND DER ÜBERSEHENE RISIKOFAKTOR“",
+    label: {
+      de: "WHITE PAPER „PERI-IMPLANTITIS UND DER ÜBERSEHENE RISIKOFAKTOR“",
+      en: "WHITE PAPER „PERI-IMPLANTITIS UND DER ÜBERSEHENE RISIKOFAKTOR“ (GERMAN)",
+    },
     file: "whitepaper-de.pdf",
     downloadName:
       "CleanImplant White Paper - Peri-Implantitis und der übersehene Risikofaktor.pdf",
@@ -27,7 +30,10 @@ export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
   },
   whitepaper_en: {
     id: "whitepaper_en",
-    label: "WHITE PAPER „THE MISSING VARIABLE IN PERI-IMPLANTITIS“",
+    label: {
+      de: "WHITE PAPER „THE MISSING VARIABLE IN PERI-IMPLANTITIS“",
+      en: "WHITE PAPER „THE MISSING VARIABLE IN PERI-IMPLANTITIS“",
+    },
     file: "whitepaper-en.pdf",
     downloadName:
       "CleanImplant White Paper - The Missing Variable in Peri-Implantitis.pdf",
@@ -35,12 +41,20 @@ export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
   },
   guidelines: {
     id: "guidelines",
-    label: "CLEANIMPLANT GUIDELINE (REVISION 2025)",
+    label: {
+      de: "CLEANIMPLANT GUIDELINE (REVISION 2025)",
+      en: "CLEANIMPLANT GUIDELINE (REVISION 2025)",
+    },
     file: "guidelines.pdf",
     downloadName: "CleanImplant Guideline (Revision 2025).pdf",
     lang: "en",
   },
 };
+
+/** Sprachabhängiger Anzeigename eines Dokuments. */
+export function docLabel(id: DocumentId, lang: "de" | "en"): string {
+  return DOCUMENTS[id].label[lang];
+}
 
 export const ALL_DOCUMENT_IDS = Object.keys(DOCUMENTS) as DocumentId[];
 
