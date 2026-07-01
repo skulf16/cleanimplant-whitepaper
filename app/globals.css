@@ -275,9 +275,9 @@ main {
   color: #ffffff;
 }
 
-/* White-Paper-Beschreibung (Guideline-Variante, unter den Covern) */
+/* White-Paper-Beschreibung (Guideline-Variante, über den Covern) */
 .wp-desc {
-  margin-top: 18px;
+  margin: 18px 0 14px;
 }
 
 .wp-desc-title {

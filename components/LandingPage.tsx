@@ -229,7 +229,15 @@ export default function LandingPage({
                 </span>
               </button>
 
-              {/* Darunter: beide White Paper (DE / EN) */}
+              {/* White-Paper-Beschreibung über den Dokumenten */}
+              <div className="wp-desc">
+                <h3 className="wp-desc-title">
+                  {t.h1a} {t.h1em}
+                </h3>
+                <p className="wp-desc-text">{t.subtitle}</p>
+              </div>
+
+              {/* Darunter: beide White Paper (DE / EN) – auswählbar */}
               <div className="covers-row">
                 {renderCover(
                   "whitepaper_de",
@@ -243,14 +251,6 @@ export default function LandingPage({
                   "CleanImplant White Paper (English)",
                   t.coverEn
                 )}
-              </div>
-
-              {/* White-Paper-Beschreibung unter den Covern */}
-              <div className="wp-desc">
-                <h3 className="wp-desc-title">
-                  {t.h1a} {t.h1em}
-                </h3>
-                <p className="wp-desc-text">{t.subtitle}</p>
               </div>
             </>
           ) : (
