@@ -57,6 +57,51 @@ export interface Strings {
   spamNote: string;
 }
 
+// Zusatztexte für die Variante mit der Guideline im Vordergrund
+export interface GuidelineVariantStrings {
+  h1a: string;
+  h1em: string;
+  subtitle: string;
+  guidelineCaption: string;
+  primaryLabel: string;
+  guidelineError: string;
+  addonLabel: string;
+  wpBannerTitle: string;
+  wpBannerText: string;
+  wpBannerMeta: string;
+}
+
+export const GV: Record<Locale, GuidelineVariantStrings> = {
+  de: {
+    h1a: "CleanImplant Guideline",
+    h1em: "Revision 2025",
+    subtitle:
+      "Verfahrensbeschreibung und Leistungskriterien für das CleanImplant Trusted Quality Seal – die vollständige konsensbasierte Leitlinie mit 28 Seiten und 50 REM-Aufnahmen.",
+    guidelineCaption: "PDF · Englisch",
+    primaryLabel: "Ihr Download",
+    guidelineError: "Bitte wählen Sie die Guideline.",
+    addonLabel: "White Paper dazu",
+    wpBannerTitle: "White Paper „Peri-implantitis und der übersehene Risikofaktor“",
+    wpBannerText:
+      "Kostenlos dazu: das White Paper zu klinischen, reputativen und wirtschaftlichen Implikationen.",
+    wpBannerMeta: "Verfügbar in Deutsch und Englisch",
+  },
+  en: {
+    h1a: "CleanImplant Guideline",
+    h1em: "Revision 2025",
+    subtitle:
+      "Process description and performance criteria for the CleanImplant Trusted Quality Seal – the complete consensus-based guideline with 28 pages and 50 SEM images.",
+    guidelineCaption: "PDF · English",
+    primaryLabel: "Your download",
+    guidelineError: "Please select the guideline.",
+    addonLabel: "Add the White Paper",
+    wpBannerTitle: "White Paper „The Missing Variable in Peri-implantitis“",
+    wpBannerText:
+      "Free add-on: the White Paper on clinical, reputational and economic implications.",
+    wpBannerMeta: "Available in German and English",
+  },
+};
+
 export const T: Record<Locale, Strings> = {
   de: {
     langNav: { de: "DE", en: "EN" },

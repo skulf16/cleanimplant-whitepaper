@@ -1,17 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { Locale, T } from "@/lib/i18n";
+import { Locale, T, GV } from "@/lib/i18n";
 
 type DocId = "whitepaper_de" | "whitepaper_en" | "guidelines";
+type Variant = "whitepaper" | "guideline";
 
 interface SuccessLink {
   label: string;
   url: string;
 }
 
-export default function LandingPage({ locale }: { locale: Locale }) {
+export default function LandingPage({
+  locale,
+  variant = "whitepaper",
+  paths = { de: "/", en: "/en" },
+}: {
+  locale: Locale;
+  variant?: Variant;
+  paths?: { de: string; en: string };
+}) {
   const t = T[locale];
+  const gv = GV[locale];
+  const isGuideline = variant === "guideline";
+  const addonWp: DocId = locale === "en" ? "whitepaper_en" : "whitepaper_de";
+
   const DOC_SHORT: Record<DocId, string> = {
     whitepaper_de: t.wpDe,
     whitepaper_en: t.wpEn,
@@ -23,7 +36,7 @@ export default function LandingPage({ locale }: { locale: Locale }) {
   const [docs, setDocs] = useState<Record<DocId, boolean>>({
     whitepaper_de: false,
     whitepaper_en: false,
-    guidelines: false,
+    guidelines: isGuideline,
   });
   const [role, setRole] = useState<string>("");
   const [roleOther, setRoleOther] = useState("");
@@ -49,10 +62,15 @@ export default function LandingPage({ locale }: { locale: Locale }) {
   const selectedDocIds = (Object.keys(docs) as DocId[]).filter((d) => docs[d]);
   const roleValue = role === "other" ? roleOther.trim() : role;
 
+  // Pflicht-Auswahl je nach Variante
+  const primarySelected = isGuideline
+    ? docs.guidelines
+    : docs.whitepaper_de || docs.whitepaper_en;
+  const primaryError = isGuideline ? gv.guidelineError : t.langError;
+
   function goToStep2() {
-    const hasWhitepaper = docs.whitepaper_de || docs.whitepaper_en;
-    setDocError(!hasWhitepaper);
-    if (!hasWhitepaper) return;
+    setDocError(!primarySelected);
+    if (!primarySelected) return;
     setStep(2);
   }
 
@@ -61,12 +79,11 @@ export default function LandingPage({ locale }: { locale: Locale }) {
     setSubmitError(null);
 
     const emailOk = isValidEmail(email);
-    const hasWhitepaper = docs.whitepaper_de || docs.whitepaper_en;
     const hasRole = roleValue.length > 0;
 
     setEmailError(!emailOk);
     setRoleError(!hasRole);
-    if (!hasWhitepaper) {
+    if (!primarySelected) {
       setDocError(true);
       setStep(1);
       return;
@@ -122,10 +139,10 @@ export default function LandingPage({ locale }: { locale: Locale }) {
           />
         </a>
         <nav className="lang-switch">
-          <a href="/" className={locale === "de" ? "active" : ""}>
+          <a href={paths.de} className={locale === "de" ? "active" : ""}>
             {t.langNav.de}
           </a>
-          <a href="/en" className={locale === "en" ? "active" : ""}>
+          <a href={paths.en} className={locale === "en" ? "active" : ""}>
             {t.langNav.en}
           </a>
         </nav>
@@ -138,72 +155,131 @@ export default function LandingPage({ locale }: { locale: Locale }) {
           <p className="eyebrow">{t.eyebrow}</p>
 
           <h1>
-            {t.h1a}
+            {isGuideline ? gv.h1a : t.h1a}
             <br />
-            <em>{t.h1em}</em>
+            <em>{isGuideline ? gv.h1em : t.h1em}</em>
           </h1>
 
-          <p className="subtitle">{t.subtitle}</p>
+          <p className="subtitle">{isGuideline ? gv.subtitle : t.subtitle}</p>
 
-          <div className="covers-row">
-            <figure className="cover-figure">
+          {isGuideline ? (
+            <div className="covers-row">
+              <figure className="cover-figure">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/guideline-cover.png"
+                  alt="CleanImplant Guideline (Revision 2025)"
+                />
+                <figcaption>{gv.guidelineCaption}</figcaption>
+              </figure>
+            </div>
+          ) : (
+            <div className="covers-row">
+              <figure className="cover-figure">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/whitepaper-de-cover.png"
+                  alt="CleanImplant White Paper (Deutsch)"
+                />
+                <figcaption>{t.coverDe}</figcaption>
+              </figure>
+              <figure className="cover-figure">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/whitepaper-en-cover.png"
+                  alt="CleanImplant White Paper (English)"
+                />
+                <figcaption>{t.coverEn}</figcaption>
+              </figure>
+            </div>
+          )}
+
+          {/* Add-on banner (clickable, synced with the selection) */}
+          {isGuideline ? (
+            <button
+              type="button"
+              className={`guideline-promo${docs[addonWp] ? " selected" : ""}`}
+              onClick={() => toggleDoc(addonWp)}
+              aria-pressed={docs[addonWp]}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/whitepaper-de-cover.png"
-                alt="CleanImplant White Paper (Deutsch)"
+                src={
+                  locale === "en"
+                    ? "/whitepaper-en-cover.png"
+                    : "/whitepaper-de-cover.png"
+                }
+                alt="CleanImplant White Paper"
+                className="guideline-promo-cover"
               />
-              <figcaption>{t.coverDe}</figcaption>
-            </figure>
-            <figure className="cover-figure">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/whitepaper-en-cover.png"
-                alt="CleanImplant White Paper (English)"
-              />
-              <figcaption>{t.coverEn}</figcaption>
-            </figure>
-          </div>
-
-          {/* Guideline banner – clickable, synced with the selection */}
-          <button
-            type="button"
-            className={`guideline-promo${docs.guidelines ? " selected" : ""}`}
-            onClick={() => toggleDoc("guidelines")}
-            aria-pressed={docs.guidelines}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/guideline-cover.png"
-              alt="CleanImplant Guideline (Revision 2025)"
-              className="guideline-promo-cover"
-            />
-            <span className="guideline-promo-body">
-              <strong className="guideline-promo-title">
-                {t.guidelineTitle}
-              </strong>
-              <span className="guideline-promo-text">{t.guidelineText}</span>
-              <span className="guideline-promo-meta">{t.guidelineMeta}</span>
-              <span className="guideline-promo-action">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {docs.guidelines ? (
-                    <path d="M5 13l4 4L19 7" />
-                  ) : (
-                    <path d="M12 5v14M5 12h14" />
-                  )}
-                </svg>
-                {docs.guidelines ? t.selected : t.add}
+              <span className="guideline-promo-body">
+                <strong className="guideline-promo-title">
+                  {gv.wpBannerTitle}
+                </strong>
+                <span className="guideline-promo-text">{gv.wpBannerText}</span>
+                <span className="guideline-promo-meta">{gv.wpBannerMeta}</span>
+                <span className="guideline-promo-action">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {docs[addonWp] ? (
+                      <path d="M5 13l4 4L19 7" />
+                    ) : (
+                      <path d="M12 5v14M5 12h14" />
+                    )}
+                  </svg>
+                  {docs[addonWp] ? t.selected : t.add}
+                </span>
               </span>
-            </span>
-          </button>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`guideline-promo${docs.guidelines ? " selected" : ""}`}
+              onClick={() => toggleDoc("guidelines")}
+              aria-pressed={docs.guidelines}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/guideline-cover.png"
+                alt="CleanImplant Guideline (Revision 2025)"
+                className="guideline-promo-cover"
+              />
+              <span className="guideline-promo-body">
+                <strong className="guideline-promo-title">
+                  {t.guidelineTitle}
+                </strong>
+                <span className="guideline-promo-text">{t.guidelineText}</span>
+                <span className="guideline-promo-meta">{t.guidelineMeta}</span>
+                <span className="guideline-promo-action">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {docs.guidelines ? (
+                      <path d="M5 13l4 4L19 7" />
+                    ) : (
+                      <path d="M12 5v14M5 12h14" />
+                    )}
+                  </svg>
+                  {docs.guidelines ? t.selected : t.add}
+                </span>
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Right: form */}
@@ -232,55 +308,118 @@ export default function LandingPage({ locale }: { locale: Locale }) {
                 {/* Step 1: selection */}
                 {step === 1 && (
                   <>
-                    <div className="field-group">
-                      <span className="field-label">
-                        {t.selectionLabel} <span className="required">*</span>
-                      </span>
-                      <div className="options-group">
-                        <label
-                          className={`option-item${docs.whitepaper_de ? " selected" : ""}`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={docs.whitepaper_de}
-                            onChange={() => toggleDoc("whitepaper_de")}
-                          />
-                          <span className="option-label">{t.wpDe}</span>
-                          <span className="option-flag">DE</span>
-                        </label>
-                        <label
-                          className={`option-item${docs.whitepaper_en ? " selected" : ""}`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={docs.whitepaper_en}
-                            onChange={() => toggleDoc("whitepaper_en")}
-                          />
-                          <span className="option-label">{t.wpEn}</span>
-                          <span className="option-flag">EN</span>
-                        </label>
-                      </div>
-                      {docError && (
-                        <p className="error-msg visible">{t.langError}</p>
-                      )}
-                    </div>
+                    {isGuideline ? (
+                      <>
+                        {/* Primary: guideline */}
+                        <div className="field-group">
+                          <span className="field-label">
+                            {gv.primaryLabel} <span className="required">*</span>
+                          </span>
+                          <div className="options-group">
+                            <label
+                              className={`option-item${docs.guidelines ? " selected" : ""}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={docs.guidelines}
+                                onChange={() => toggleDoc("guidelines")}
+                              />
+                              <span className="option-label">
+                                {t.guidelineTitle}
+                              </span>
+                            </label>
+                          </div>
+                          {docError && (
+                            <p className="error-msg visible">{primaryError}</p>
+                          )}
+                        </div>
 
-                    {/* Guideline CTA */}
-                    <div className="field-group">
-                      <label
-                        className={`cta-item${docs.guidelines ? " selected" : ""}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={docs.guidelines}
-                          onChange={() => toggleDoc("guidelines")}
-                        />
-                        <span className="cta-label">
-                          <strong>{t.guidelineCtaTitle}</strong>
-                          {t.guidelineCtaText}
-                        </span>
-                      </label>
-                    </div>
+                        {/* Add-on: white paper languages */}
+                        <div className="field-group">
+                          <span className="field-label">
+                            {gv.addonLabel}
+                            <span className="optional">{t.optional}</span>
+                          </span>
+                          <div className="options-group">
+                            <label
+                              className={`option-item${docs.whitepaper_de ? " selected" : ""}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={docs.whitepaper_de}
+                                onChange={() => toggleDoc("whitepaper_de")}
+                              />
+                              <span className="option-label">{t.wpDe}</span>
+                              <span className="option-flag">DE</span>
+                            </label>
+                            <label
+                              className={`option-item${docs.whitepaper_en ? " selected" : ""}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={docs.whitepaper_en}
+                                onChange={() => toggleDoc("whitepaper_en")}
+                              />
+                              <span className="option-label">{t.wpEn}</span>
+                              <span className="option-flag">EN</span>
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="field-group">
+                          <span className="field-label">
+                            {t.selectionLabel}{" "}
+                            <span className="required">*</span>
+                          </span>
+                          <div className="options-group">
+                            <label
+                              className={`option-item${docs.whitepaper_de ? " selected" : ""}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={docs.whitepaper_de}
+                                onChange={() => toggleDoc("whitepaper_de")}
+                              />
+                              <span className="option-label">{t.wpDe}</span>
+                              <span className="option-flag">DE</span>
+                            </label>
+                            <label
+                              className={`option-item${docs.whitepaper_en ? " selected" : ""}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={docs.whitepaper_en}
+                                onChange={() => toggleDoc("whitepaper_en")}
+                              />
+                              <span className="option-label">{t.wpEn}</span>
+                              <span className="option-flag">EN</span>
+                            </label>
+                          </div>
+                          {docError && (
+                            <p className="error-msg visible">{primaryError}</p>
+                          )}
+                        </div>
+
+                        {/* Guideline CTA */}
+                        <div className="field-group">
+                          <label
+                            className={`cta-item${docs.guidelines ? " selected" : ""}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={docs.guidelines}
+                              onChange={() => toggleDoc("guidelines")}
+                            />
+                            <span className="cta-label">
+                              <strong>{t.guidelineCtaTitle}</strong>
+                              {t.guidelineCtaText}
+                            </span>
+                          </label>
+                        </div>
+                      </>
+                    )}
 
                     <button
                       type="button"
