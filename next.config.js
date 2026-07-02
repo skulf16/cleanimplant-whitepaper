@@ -7,7 +7,7 @@ const nextConfig = {
       // Sprachen getauscht: Englisch ist jetzt Root, Deutsch unter /de
       { source: "/en", destination: "/", permanent: true },
       { source: "/en/guideline", destination: "/guideline", permanent: true },
-      { source: "/leitlinie", destination: "/de/leitlinie", permanent: true },
+      { source: "/de/leitlinie", destination: "/leitlinie", permanent: true },
     ];
   },
 };

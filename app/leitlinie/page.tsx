@@ -7,8 +7,8 @@ export const metadata: Metadata = {
     "Laden Sie die CleanImplant Guideline (Revision 2025) kostenlos herunter – das White Paper gibt es optional dazu.",
 };
 
-const PATHS = { de: "/de/leitlinie", en: "/guideline" };
+const PATHS = { de: "/leitlinie", en: "/guideline" };
 
-export default function DeLeitlinie() {
+export default function Leitlinie() {
   return <LandingPage locale="de" variant="guideline" paths={PATHS} />;
 }
