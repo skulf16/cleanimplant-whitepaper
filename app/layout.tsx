@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "White Paper herunterladen – CleanImplant Foundation",
+  title: "Download White Paper – CleanImplant Foundation",
   description:
-    "Laden Sie das CleanImplant White Paper zu Peri-Implantitis sowie die aktuelle CleanImplant Guideline kostenlos herunter.",
+    "Download the CleanImplant White Paper on peri-implantitis and the current CleanImplant Guideline for free.",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

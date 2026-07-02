@@ -17,7 +17,7 @@ const CONFIRM_STRINGS = {
     okTitle: "Vielen Dank!",
     okHead: "Ihre E-Mail ist bestätigt.",
     okText: "Hier sind Ihre angeforderten Dokumente:",
-    home: "/",
+    home: "/de",
   },
   en: {
     invalidKicker: "Confirmation",
@@ -29,7 +29,7 @@ const CONFIRM_STRINGS = {
     okTitle: "Thank you!",
     okHead: "Your email is confirmed.",
     okText: "Here are your requested documents:",
-    home: "/en",
+    home: "/",
   },
 } as const;
 
