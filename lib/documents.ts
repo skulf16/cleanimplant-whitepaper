@@ -21,7 +21,7 @@ export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
     id: "whitepaper_de",
     label: {
       de: "WHITE PAPER „PERI-IMPLANTITIS UND DER ÜBERSEHENE RISIKOFAKTOR“",
-      en: "WHITE PAPER „PERI-IMPLANTITIS UND DER ÜBERSEHENE RISIKOFAKTOR“ (GERMAN)",
+      en: "WHITE PAPER „PERI-IMPLANTITIS AND THE OVERLOOKED RISK FACTOR“ (GERMAN EDITION)",
     },
     file: "whitepaper-de.pdf",
     downloadName:
