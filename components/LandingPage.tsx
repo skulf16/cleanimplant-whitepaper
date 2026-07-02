@@ -58,6 +58,17 @@ export default function LandingPage({
   const toggleDoc = (id: DocId) =>
     setDocs((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  // White Paper: nur eine Sprache gleichzeitig (DE oder EN)
+  const toggleWhitepaper = (id: "whitepaper_de" | "whitepaper_en") =>
+    setDocs((prev) => {
+      const on = !prev[id];
+      return {
+        ...prev,
+        whitepaper_de: id === "whitepaper_de" ? on : false,
+        whitepaper_en: id === "whitepaper_en" ? on : false,
+      };
+    });
+
   const selectedDocIds = (Object.keys(docs) as DocId[]).filter((d) => docs[d]);
   const roleValue = role === "other" ? roleOther.trim() : role;
 
@@ -126,7 +137,7 @@ export default function LandingPage({
   }
 
   const renderCover = (
-    id: DocId,
+    id: "whitepaper_de" | "whitepaper_en",
     src: string,
     alt: string,
     caption: string
@@ -135,7 +146,7 @@ export default function LandingPage({
       key={id}
       type="button"
       className={`cover-figure${docs[id] ? " selected" : ""}`}
-      onClick={() => toggleDoc(id)}
+      onClick={() => toggleWhitepaper(id)}
       aria-pressed={docs[id]}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -387,7 +398,7 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_de}
-                                onChange={() => toggleDoc("whitepaper_de")}
+                                onChange={() => toggleWhitepaper("whitepaper_de")}
                               />
                               <span className="option-label">{t.wpDe}</span>
                               <span className="option-flag">DE</span>
@@ -398,7 +409,7 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_en}
-                                onChange={() => toggleDoc("whitepaper_en")}
+                                onChange={() => toggleWhitepaper("whitepaper_en")}
                               />
                               <span className="option-label">{t.wpEn}</span>
                               <span className="option-flag">EN</span>
@@ -420,7 +431,7 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_de}
-                                onChange={() => toggleDoc("whitepaper_de")}
+                                onChange={() => toggleWhitepaper("whitepaper_de")}
                               />
                               <span className="option-label">{t.wpDe}</span>
                               <span className="option-flag">DE</span>
@@ -431,7 +442,7 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_en}
-                                onChange={() => toggleDoc("whitepaper_en")}
+                                onChange={() => toggleWhitepaper("whitepaper_en")}
                               />
                               <span className="option-label">{t.wpEn}</span>
                               <span className="option-flag">EN</span>
