@@ -43,12 +43,12 @@ export async function POST(req: NextRequest) {
   const ERR = {
     de: {
       email: "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
-      wp: "Bitte wählen Sie mindestens ein White Paper aus.",
+      doc: "Bitte wählen Sie mindestens ein Dokument aus.",
       mail: "Der E-Mail-Versand ist fehlgeschlagen. Bitte später erneut versuchen.",
     },
     en: {
       email: "Please enter a valid email address.",
-      wp: "Please select at least one White Paper.",
+      doc: "Please select at least one document.",
       mail: "Sending the email failed. Please try again later.",
     },
   }[lang];
@@ -64,12 +64,8 @@ export async function POST(req: NextRequest) {
     ? (documents.filter(isDocumentId) as DocumentId[])
     : [];
 
-  const hasWhitepaper =
-    selectedDocs.includes("whitepaper_de") ||
-    selectedDocs.includes("whitepaper_en");
-
-  if (!hasWhitepaper) {
-    return NextResponse.json({ error: ERR.wp }, { status: 400 });
+  if (selectedDocs.length === 0) {
+    return NextResponse.json({ error: ERR.doc }, { status: 400 });
   }
 
   const baseUrl = resolveBaseUrl(req);
