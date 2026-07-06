@@ -313,6 +313,77 @@ export function buildConfirmEmail({
   return { subject: c.subject, html, text };
 }
 
+const ROLE_LABELS: Record<string, string> = {
+  dentist: "Zahnarzt / Zahnärztin",
+  patient: "Patient / Patientin",
+  industry: "Dentalhandel / Hersteller",
+};
+
+/** Interne Benachrichtigung an das Team über eine neue Anfrage. */
+export function buildNotificationEmail({
+  email,
+  role,
+  documents,
+  newsletter,
+  lang,
+  source,
+  status,
+}: {
+  email: string;
+  role: string;
+  documents: DocumentId[];
+  newsletter: boolean;
+  lang: "de" | "en";
+  source: string;
+  status: string;
+}): BuiltEmail {
+  const roleLabel = ROLE_LABELS[role] || role || "—";
+  const docsList = documents.map((id) => docLabel(id, "de"));
+
+  const rows: [string, string][] = [
+    ["E-Mail", email],
+    ["Ich bin", roleLabel],
+    ["Dokumente", docsList.join(" · ")],
+    ["Newsletter", newsletter ? "Ja" : "Nein"],
+    ["Sprache", lang === "en" ? "Englisch" : "Deutsch"],
+    ["Quelle", source],
+    ["Status", status],
+  ];
+
+  const rowsHtml = rows
+    .map(
+      ([k, v]) =>
+        `<tr><td style="padding:6px 12px;color:${MUTED};font-size:13px;white-space:nowrap;vertical-align:top;">${escapeHtml(
+          k
+        )}</td><td style="padding:6px 12px;color:${NAVY};font-size:14px;font-weight:600;">${escapeHtml(
+          v
+        )}</td></tr>`
+    )
+    .join("");
+
+  const html = `<!DOCTYPE html><html lang="de"><head><meta charset="utf-8" /></head>
+  <body style="margin:0;padding:0;background:${BG};font-family:Helvetica,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BG};">
+      <tr><td align="center" style="padding:28px 16px;">
+        <table role="presentation" width="520" cellpadding="0" cellspacing="0" style="width:520px;max-width:520px;background:#fff;border:1px solid ${BORDER};border-radius:8px;overflow:hidden;">
+          <tr><td style="background:${NAVY};padding:18px 24px;color:#fff;font-size:15px;font-weight:600;">Neue White-Paper-Anfrage</td></tr>
+          <tr><td style="padding:16px 12px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body></html>`;
+
+  const text = [
+    "Neue White-Paper-Anfrage",
+    "",
+    ...rows.map(([k, v]) => `${k}: ${v}`),
+  ].join("\n");
+
+  return { subject: `Neue White-Paper-Anfrage: ${email}`, html, text };
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")

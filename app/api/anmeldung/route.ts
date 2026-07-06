@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DocumentId, docLabel, isDocumentId } from "@/lib/documents";
-import { buildDownloadEmail, buildConfirmEmail } from "@/lib/email-template";
+import {
+  buildDownloadEmail,
+  buildConfirmEmail,
+  buildNotificationEmail,
+} from "@/lib/email-template";
 import { signedDownloadUrl, createConfirmToken } from "@/lib/token";
 import { sendMail, isMailConfigured } from "@/lib/mailer";
 import { isContactActive, addContactPending } from "@/lib/cleverreach";
@@ -74,6 +78,28 @@ export async function POST(req: NextRequest) {
     url: signedDownloadUrl(baseUrl, id),
   }));
 
+  const role = Array.isArray(roles) ? roles.join(", ") : "";
+
+  // Interne Benachrichtigung an das Team (mit Lead-Daten)
+  async function notify(status: string) {
+    const to = process.env.NOTIFY_EMAIL;
+    if (!to || !isMailConfigured()) return;
+    try {
+      const mail = buildNotificationEmail({
+        email: cleanEmail,
+        role,
+        documents: selectedDocs,
+        newsletter: newsletter === true,
+        lang,
+        source: source || "White Paper Landingpage",
+        status,
+      });
+      await sendMail({ to, ...mail });
+    } catch (err) {
+      console.error("[anmeldung] Benachrichtigung fehlgeschlagen:", err);
+    }
+  }
+
   // Ist die Adresse bereits ein aktiver/bestätigter Kontakt? → sofort ausliefern
   let alreadyActive = false;
   try {
@@ -90,6 +116,11 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error("[anmeldung] Download-Mail fehlgeschlagen:", err);
     }
+    await notify(
+      alreadyActive
+        ? "Sofort ausgeliefert (Bestandskontakt)"
+        : "Sofort ausgeliefert (ohne Bestätigung)"
+    );
     return NextResponse.json({ ok: true, confirmed: true, links });
   }
 
@@ -129,5 +160,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: ERR.mail }, { status: 502 });
   }
 
+  await notify("Bestätigung ausstehend (neue Adresse)");
   return NextResponse.json({ ok: true, confirmed: false });
 }
