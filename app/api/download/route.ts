@@ -3,6 +3,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { DOCUMENTS, PROTECTED_DIR } from "@/lib/documents";
 import { verifyDownloadToken } from "@/lib/token";
+import { recordDownload } from "@/lib/stats";
 
 export const runtime = "nodejs";
 
@@ -22,6 +23,8 @@ export async function GET(req: NextRequest) {
 
   try {
     const data = await fs.readFile(filePath);
+    // Download zählen (blockiert den Download nicht)
+    await recordDownload(docId);
     // Sauberer Dateiname; ASCII-Fallback + UTF-8 (RFC 5987) für Umlaute
     const name = doc.downloadName;
     const asciiName = name.replace(/[^\x20-\x7E]/g, "_");
