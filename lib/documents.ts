@@ -23,7 +23,7 @@ export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
       de: "WHITE PAPER „PERI-IMPLANTITIS UND DER ÜBERSEHENE RISIKOFAKTOR“",
       en: "WHITE PAPER „PERI-IMPLANTITIS AND THE OVERLOOKED RISK FACTOR“ (GERMAN EDITION)",
     },
-    file: "whitepaper-de.pdf",
+    file: "cleanimplant-whitepaper-de.pdf",
     downloadName:
       "CleanImplant White Paper - Peri-Implantitis und der übersehene Risikofaktor.pdf",
     lang: "de",
@@ -34,7 +34,7 @@ export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
       de: "WHITE PAPER „THE MISSING VARIABLE IN PERI-IMPLANTITIS“",
       en: "WHITE PAPER „THE MISSING VARIABLE IN PERI-IMPLANTITIS“",
     },
-    file: "whitepaper-en.pdf",
+    file: "cleanimplant-whitepaper-en.pdf",
     downloadName:
       "CleanImplant White Paper - The Missing Variable in Peri-Implantitis.pdf",
     lang: "en",
@@ -45,7 +45,7 @@ export const DOCUMENTS: Record<DocumentId, DocumentDef> = {
       de: "CLEANIMPLANT GUIDELINE (REVISION 2025)",
       en: "CLEANIMPLANT GUIDELINE (REVISION 2025)",
     },
-    file: "guidelines.pdf",
+    file: "cleanimplant-guideline.pdf",
     downloadName: "CleanImplant Guideline (Revision 2025).pdf",
     lang: "en",
   },
