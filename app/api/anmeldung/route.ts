@@ -82,7 +82,12 @@ export async function POST(req: NextRequest) {
 
   // Interne Benachrichtigung an das Team (mit Lead-Daten)
   async function notify(status: string) {
-    const to = process.env.NOTIFY_EMAIL;
+    // Mehrere Empfänger möglich (komma-getrennt in NOTIFY_EMAIL)
+    const to = (process.env.NOTIFY_EMAIL || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join(", ");
     if (!to || !isMailConfigured()) return;
     try {
       const mail = buildNotificationEmail({
