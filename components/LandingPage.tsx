@@ -667,6 +667,11 @@ export default function LandingPage({
               </div>
               <h3>{t.thanksTitle}</h3>
               <p>{t.thanksText}</p>
+              {newsletter && locale === "de" && (
+                <p className="privacy-note" style={{ marginTop: 0 }}>
+                  {t.newsletterConfirmNote}
+                </p>
+              )}
               <div className="success-links">
                 {success.links.map((link) => (
                   <a

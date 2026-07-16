@@ -236,30 +236,29 @@ export async function activateContact(email: string): Promise<void> {
 
 interface SubscribeArgs {
   email: string;
-  /** Sprache des gewählten Whitepapers ("de" | "en") → Feld `language` */
+  /** Sprache → steuert Single-/Double-Opt-in und Feld `language` */
   lang?: "de" | "en";
   /** Wurden die Guidelines mitbestellt? → Gruppen-Feld `guideline` (Ja/Nein) */
   wantsGuideline?: boolean;
+  /** Berufsgruppe → global `profession` */
+  profession?: string;
   source?: string;
-  /** Für den DOI-Einwilligungsnachweis */
+  /** Für den DOI-Einwilligungsnachweis (nur Deutsch) */
   userIp?: string;
   userAgent?: string;
 }
 
 /**
- * Trägt eine Adresse in die CleverReach-Gruppe ein und stößt das
- * Double-Opt-in an. Existiert die Adresse bereits (und ist bestätigt),
- * passiert nichts Doppeltes – CleverReach verwaltet das selbst.
- *
- * Geschriebene Felder:
- *  - global `language`  → "Deutsch" / "Englisch"
- *  - global `quelle`    → Quelle der Anmeldung
- *  - group  `guideline` → "Ja" / "Nein"
+ * Newsletter-Anmeldung in CleverReach.
+ *  - Deutsch: Double-Opt-in (Empfänger ausstehend + CleverReach-DOI-Mail).
+ *  - Englisch: Single-Opt-in (Empfänger direkt aktiv, keine Bestätigungsmail).
+ * Wird nur aufgerufen, wenn der Newsletter aktiv gewünscht wurde.
  */
 export async function subscribeToNewsletter({
   email,
   lang = "de",
   wantsGuideline = false,
+  profession = "",
   source = "White Paper Landingpage",
   userIp = "",
   userAgent = "",
@@ -271,36 +270,36 @@ export async function subscribeToNewsletter({
     return;
   }
 
-  // Optional getrennte Gruppen für DE/EN
+  const singleOptIn = lang === "en";
   const groupId =
     (lang === "en" && process.env.CLEVERREACH_GROUP_ID_EN) ||
     process.env.CLEVERREACH_GROUP_ID;
 
   const token = await getAccessToken();
   const authHeader = { Authorization: `Bearer ${token}` };
+  const now = Math.floor(Date.now() / 1000);
 
-  // 1. Empfänger als AUSSTEHEND anlegen (activated:0) → ermöglicht den DOI.
-  //    /receivers (create) hält activated:0 ein; /upsert würde sofort aktivieren.
+  // 1. Empfänger anlegen – EN: sofort aktiv (Single-Opt-in), DE: ausstehend (DOI folgt)
   const create = await fetch(`${API_BASE}/groups.json/${groupId}/receivers`, {
     method: "POST",
     headers: { ...authHeader, "Content-Type": "application/json" },
     body: JSON.stringify({
       email,
-      registered: Math.floor(Date.now() / 1000),
-      activated: 0,
+      registered: now,
+      activated: singleOptIn ? now : 0,
       deactivated: 0,
       source,
       global_attributes: {
         language: lang === "en" ? "Englisch" : "Deutsch",
+        newsletter: "Ja",
+        profession,
         quelle: source,
       },
-      attributes: {
-        guideline: wantsGuideline ? "Ja" : "Nein",
-      },
+      attributes: { guideline: wantsGuideline ? "Ja" : "Nein" },
     }),
   });
-  // Duplikat (Adresse existiert bereits) ist kein Fehler – dann nur DOI anstoßen.
-  if (!create.ok) {
+  const duplicate = !create.ok;
+  if (duplicate) {
     const body = await create.json().catch(() => null);
     const msg = body?.error?.message || "";
     if (!/duplicate|already|exist/i.test(msg)) {
@@ -310,37 +309,31 @@ export async function subscribeToNewsletter({
     }
   }
 
-  // 2. Double-Opt-in-Mail auslösen (sofern ein DOI-Formular hinterlegt ist)
-  const formId =
-    (lang === "en" && process.env.CLEVERREACH_FORM_ID_EN) ||
-    process.env.CLEVERREACH_FORM_ID;
+  if (singleOptIn) {
+    // Englisch: sicherstellen, dass der Kontakt aktiv ist (auch bei Duplikat)
+    if (duplicate) await activateContact(email);
+    return;
+  }
 
-  if (formId) {
-    const doi = await fetch(
-      `${API_BASE}/forms.json/${formId}/send/activate`,
-      {
-        method: "POST",
-        headers: { ...authHeader, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          doidata: {
-            user_ip: userIp,
-            referer: source,
-            user_agent: userAgent,
-          },
-        }),
-      }
-    );
-    // "already active" ist kein echter Fehler: Adresse ist bereits bestätigt,
-    // dann ist keine erneute DOI-Mail nötig.
-    if (!doi.ok) {
-      const body = await doi.json().catch(() => null);
-      const msg = body?.error?.message || "";
-      if (!/already active/i.test(msg)) {
-        throw new Error(
-          `CleverReach DOI-Versand fehlgeschlagen (${doi.status}): ${msg}`
-        );
-      }
+  // Deutsch: Double-Opt-in-Mail über das hinterlegte Formular auslösen
+  const formId = process.env.CLEVERREACH_FORM_ID;
+  if (!formId) return;
+  const doi = await fetch(`${API_BASE}/forms.json/${formId}/send/activate`, {
+    method: "POST",
+    headers: { ...authHeader, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email,
+      doidata: { user_ip: userIp, referer: source, user_agent: userAgent },
+    }),
+  });
+  if (!doi.ok) {
+    const body = await doi.json().catch(() => null);
+    const msg = body?.error?.message || "";
+    // "already active" ist ok (bereits bestätigt)
+    if (!/already active/i.test(msg)) {
+      throw new Error(
+        `CleverReach DOI-Versand fehlgeschlagen (${doi.status}): ${msg}`
+      );
     }
   }
 }

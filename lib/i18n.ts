@@ -52,6 +52,7 @@ export interface Strings {
   genericError: string;
   thanksTitle: string;
   thanksText: string;
+  newsletterConfirmNote: string;
   almostTitle: string;
   almostBefore: string;
   almostAfter: string;
@@ -166,6 +167,8 @@ export const T: Record<Locale, Strings> = {
     thanksTitle: "Vielen Dank!",
     thanksText:
       "Hier sind Ihre angeforderten Dokumente – wir haben sie Ihnen zusätzlich per E-Mail geschickt:",
+    newsletterConfirmNote:
+      "Für den Newsletter haben wir Ihnen eine Bestätigungs-E-Mail geschickt – bitte bestätigen Sie darin Ihre Anmeldung.",
     almostTitle: "Fast geschafft!",
     almostBefore: "Wir haben eine Bestätigungs-E-Mail an ",
     almostAfter:
@@ -231,6 +234,8 @@ export const T: Record<Locale, Strings> = {
     thanksTitle: "Thank you!",
     thanksText:
       "Here are your requested documents — we've also sent them to you by email:",
+    newsletterConfirmNote:
+      "For the newsletter we've sent you a confirmation email — please confirm your subscription there.",
     almostTitle: "Almost there!",
     almostBefore: "We've sent a confirmation email to ",
     almostAfter:

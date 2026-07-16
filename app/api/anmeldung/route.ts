@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { DocumentId, docLabel, isDocumentId } from "@/lib/documents";
 import {
   buildDownloadEmail,
-  buildConfirmEmail,
   buildNotificationEmail,
 } from "@/lib/email-template";
-import { signedDownloadUrl, createConfirmToken } from "@/lib/token";
+import { signedDownloadUrl } from "@/lib/token";
 import { sendMail, isMailConfigured } from "@/lib/mailer";
-import { isContactActive, addContactPending } from "@/lib/cleverreach";
+import { subscribeToNewsletter } from "@/lib/cleverreach";
 
 export const runtime = "nodejs";
 
@@ -105,66 +104,38 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Ist die Adresse bereits ein aktiver/bestätigter Kontakt? → sofort ausliefern
-  let alreadyActive = false;
+  // Download-Mail versenden – immer sofort, kein Double-Opt-in für den Download
   try {
-    alreadyActive = await isContactActive(cleanEmail);
-  } catch (err) {
-    console.error("[anmeldung] Status-Abfrage fehlgeschlagen:", err);
-  }
-
-  // Ohne SMTP kann keine Bestätigungsmail raus → Download direkt ausliefern (Fallback)
-  if (alreadyActive || !isMailConfigured()) {
-    try {
-      const mail = buildDownloadEmail({ documents: selectedDocs, baseUrl, lang });
-      await sendMail({ to: cleanEmail, ...mail });
-    } catch (err) {
-      console.error("[anmeldung] Download-Mail fehlgeschlagen:", err);
-    }
-    await notify(
-      alreadyActive
-        ? "Sofort ausgeliefert (Bestandskontakt)"
-        : "Sofort ausgeliefert (ohne Bestätigung)"
-    );
-    return NextResponse.json({ ok: true, confirmed: true, links });
-  }
-
-  // Neue Adresse: als ausstehend in CleverReach anlegen (Lead sichern)
-  try {
-    await addContactPending({
-      email: cleanEmail,
-      lang,
-      wantsGuideline: selectedDocs.includes("guidelines"),
-      newsletter: newsletter === true,
-      profession,
-      source: source || "White Paper Landingpage",
-    });
-  } catch (err) {
-    console.error("[anmeldung] CleverReach (pending) fehlgeschlagen:", err);
-  }
-
-  // Eigene Bestätigungsmail mit Bestätigungs-/Download-Link senden
-  const token = createConfirmToken({
-    email: cleanEmail,
-    documents: selectedDocs,
-    newsletter: newsletter === true,
-    lang,
-  });
-  const confirmUrl = `${baseUrl.replace(/\/$/, "")}/bestaetigen?token=${token}`;
-
-  try {
-    const mail = buildConfirmEmail({
-      confirmUrl,
-      documents: selectedDocs,
-      lang,
-      baseUrl,
-    });
+    const mail = buildDownloadEmail({ documents: selectedDocs, baseUrl, lang });
     await sendMail({ to: cleanEmail, ...mail });
   } catch (err) {
-    console.error("[anmeldung] Bestätigungsmail fehlgeschlagen:", err);
-    return NextResponse.json({ error: ERR.mail }, { status: 502 });
+    console.error("[anmeldung] Download-Mail fehlgeschlagen:", err);
   }
 
-  await notify("Bestätigung ausstehend (neue Adresse)");
-  return NextResponse.json({ ok: true, confirmed: false });
+  // Newsletter nur bei Zustimmung: DE = Double-Opt-in, EN = Single-Opt-in
+  if (newsletter === true) {
+    try {
+      await subscribeToNewsletter({
+        email: cleanEmail,
+        lang,
+        wantsGuideline: selectedDocs.includes("guidelines"),
+        profession,
+        source: source || "White Paper Landingpage",
+        userIp: req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "",
+        userAgent: req.headers.get("user-agent") || "",
+      });
+    } catch (err) {
+      console.error("[anmeldung] Newsletter-Anmeldung fehlgeschlagen:", err);
+    }
+  }
+
+  const nlNote =
+    newsletter === true
+      ? lang === "de"
+        ? "Newsletter (DE): Double-Opt-in ausstehend"
+        : "Newsletter (EN): Single-Opt-in aktiv"
+      : "kein Newsletter";
+  await notify(`Download bereitgestellt · ${nlNote}`);
+
+  return NextResponse.json({ ok: true, confirmed: true, links });
 }
