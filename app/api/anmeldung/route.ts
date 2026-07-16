@@ -31,15 +31,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
 
-  const { email, documents, roles, newsletter, source, locale } = (body ??
+  const { email, documents, roles, newsletter, name, source, locale } = (body ??
     {}) as {
     email?: string;
     documents?: unknown[];
     roles?: string[];
     newsletter?: boolean;
+    name?: string;
     source?: string;
     locale?: string;
   };
+
+  // Name (nur bei Newsletter) in Vor-/Nachname aufteilen
+  const fullName = (name || "").trim().replace(/\s+/g, " ");
+  const firstName = fullName.includes(" ")
+    ? fullName.slice(0, fullName.indexOf(" "))
+    : fullName;
+  const lastName = fullName.includes(" ")
+    ? fullName.slice(fullName.indexOf(" ") + 1)
+    : "";
 
   // Sprache = Seitensprache (Fallback Deutsch)
   const lang: "de" | "en" = locale === "en" ? "en" : "de";
@@ -91,6 +101,7 @@ export async function POST(req: NextRequest) {
     try {
       const mail = buildNotificationEmail({
         email: cleanEmail,
+        name: fullName,
         role,
         documents: selectedDocs,
         newsletter: newsletter === true,
@@ -120,6 +131,8 @@ export async function POST(req: NextRequest) {
         lang,
         wantsGuideline: selectedDocs.includes("guidelines"),
         profession,
+        firstName,
+        lastName,
         source: source || "White Paper Landingpage",
         userIp: req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "",
         userAgent: req.headers.get("user-agent") || "",

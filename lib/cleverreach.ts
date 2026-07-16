@@ -242,6 +242,9 @@ interface SubscribeArgs {
   wantsGuideline?: boolean;
   /** Berufsgruppe → global `profession` */
   profession?: string;
+  /** Name (nur bei Newsletter) → global `firstname` / `lastname` */
+  firstName?: string;
+  lastName?: string;
   source?: string;
   /** Für den DOI-Einwilligungsnachweis (nur Deutsch) */
   userIp?: string;
@@ -259,6 +262,8 @@ export async function subscribeToNewsletter({
   lang = "de",
   wantsGuideline = false,
   profession = "",
+  firstName = "",
+  lastName = "",
   source = "White Paper Landingpage",
   userIp = "",
   userAgent = "",
@@ -292,6 +297,8 @@ export async function subscribeToNewsletter({
       global_attributes: {
         language: lang === "en" ? "Englisch" : "Deutsch",
         newsletter: "Ja",
+        firstname: firstName,
+        lastname: lastName,
         profession,
         quelle: source,
       },

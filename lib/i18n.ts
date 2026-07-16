@@ -43,6 +43,8 @@ export interface Strings {
   optional: string;
   newsletterStrong: string;
   newsletterText: string;
+  namePlaceholder: string;
+  nameError: string;
   back: string;
   submit: string;
   submitting: string;
@@ -156,6 +158,8 @@ export const T: Record<Locale, Strings> = {
     newsletterStrong: "Ja, ich möchte informiert bleiben.",
     newsletterText:
       "Ich bin damit einverstanden, dass die CleanImplant Foundation mich künftig per E-Mail über Neuigkeiten, Studienergebnisse, Veranstaltungen und weitere Themen rund um Implantatqualität informiert. Eine Abmeldung ist jederzeit möglich.",
+    namePlaceholder: "Vorname und Nachname",
+    nameError: "Bitte geben Sie Ihren Namen an.",
     back: "Zurück",
     submit: "White Paper anfordern",
     submitting: "Wird gesendet …",
@@ -223,6 +227,8 @@ export const T: Record<Locale, Strings> = {
     newsletterStrong: "Yes, keep me informed.",
     newsletterText:
       "I agree that the CleanImplant Foundation may contact me by email about news, study results, events and other topics related to implant quality. I can unsubscribe at any time.",
+    namePlaceholder: "First and last name",
+    nameError: "Please enter your name.",
     back: "Back",
     submit: "Request White Paper",
     submitting: "Sending …",

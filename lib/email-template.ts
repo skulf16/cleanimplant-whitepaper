@@ -322,6 +322,7 @@ const ROLE_LABELS: Record<string, string> = {
 /** Interne Benachrichtigung an das Team über eine neue Anfrage. */
 export function buildNotificationEmail({
   email,
+  name,
   role,
   documents,
   newsletter,
@@ -330,6 +331,7 @@ export function buildNotificationEmail({
   status,
 }: {
   email: string;
+  name?: string;
   role: string;
   documents: DocumentId[];
   newsletter: boolean;
@@ -342,6 +344,7 @@ export function buildNotificationEmail({
 
   const rows: [string, string][] = [
     ["E-Mail", email],
+    ...(name ? ([["Name", name]] as [string, string][]) : []),
     ["Ich bin", roleLabel],
     ["Dokumente", docsList.join(" · ")],
     ["Newsletter", newsletter ? "Ja" : "Nein"],

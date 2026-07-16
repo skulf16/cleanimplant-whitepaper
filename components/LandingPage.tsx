@@ -40,10 +40,12 @@ export default function LandingPage({
   const [role, setRole] = useState<string>("");
   const [roleOther, setRoleOther] = useState("");
   const [newsletter, setNewsletter] = useState(false);
+  const [name, setName] = useState("");
 
   const [emailError, setEmailError] = useState(false);
   const [docError, setDocError] = useState(false);
   const [roleError, setRoleError] = useState(false);
+  const [nameError, setNameError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState<{
@@ -90,15 +92,17 @@ export default function LandingPage({
 
     const emailOk = isValidEmail(email);
     const hasRole = roleValue.length > 0;
+    const nameOk = !newsletter || name.trim().length > 0;
 
     setEmailError(!emailOk);
     setRoleError(!hasRole);
+    setNameError(!nameOk);
     if (!primarySelected) {
       setDocError(true);
       setStep(1);
       return;
     }
-    if (!emailOk || !hasRole) return;
+    if (!emailOk || !hasRole || !nameOk) return;
 
     setSubmitting(true);
     try {
@@ -110,6 +114,7 @@ export default function LandingPage({
           documents: selectedDocIds,
           roles: [roleValue],
           newsletter,
+          name: newsletter ? name.trim() : "",
           locale,
           source:
             typeof document !== "undefined"
@@ -587,6 +592,21 @@ export default function LandingPage({
                           {t.newsletterText}
                         </span>
                       </label>
+                      {newsletter && (
+                        <>
+                          <input
+                            type="text"
+                            className="role-other-input"
+                            placeholder={t.namePlaceholder}
+                            autoComplete="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                          />
+                          {nameError && (
+                            <p className="error-msg visible">{t.nameError}</p>
+                          )}
+                        </>
+                      )}
                     </div>
 
                     {submitError && (
