@@ -95,6 +95,12 @@ main {
   align-items: start;
 }
 
+/* Danke-Seite: einspaltig, zentriert */
+main.main-single {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 620px;
+}
+
 /* ── Left: document preview ──────────────── */
 .doc-preview {
   padding-right: 20px;

@@ -2,14 +2,11 @@
 
 import { useState } from "react";
 import { Locale, T, GV } from "@/lib/i18n";
+import SuccessPanel, { type SuccessLink } from "@/components/SuccessPanel";
+import { writeHandoff } from "@/lib/signup-handoff";
 
 type DocId = "whitepaper_de" | "whitepaper_en" | "guidelines";
 type Variant = "whitepaper" | "guideline";
-
-interface SuccessLink {
-  label: string;
-  url: string;
-}
 
 export default function LandingPage({
   locale,
@@ -129,11 +126,28 @@ export default function LandingPage({
       }
 
       const data = await res.json();
-      setSuccess({
+      const payload = {
         confirmed: data.confirmed !== false,
-        links: data.links ?? [],
+        links: (data.links ?? []) as SuccessLink[],
         email: email.trim(),
-      });
+        newsletter,
+        locale,
+        documents: selectedDocIds,
+      };
+
+      // Weiterleitung auf die Danke-Seite – bewusst window.location statt
+      // router.push: nur eine echte Navigation löst einen neuen Pixel-PageView
+      // für /danke aus. Bei clientseitigem Routing sieht Meta weiterhin nur die
+      // Start-URL, eine URL-basierte Custom Conversion würde nie feuern.
+      if (writeHandoff(payload)) {
+        window.location.assign(locale === "de" ? "/danke" : "/thank-you");
+        return;
+      }
+
+      // sessionStorage nicht verfügbar (Private Mode, Storage-Policy):
+      // Erfolg wie bisher direkt im Panel anzeigen, damit die Links nicht
+      // verloren gehen.
+      setSuccess(payload);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : t.genericError);
     } finally {
@@ -145,7 +159,7 @@ export default function LandingPage({
     id: "whitepaper_de" | "whitepaper_en",
     src: string,
     alt: string,
-    caption: string
+    caption: string,
   ) => (
     <button
       key={id}
@@ -167,7 +181,11 @@ export default function LandingPage({
           strokeLinecap="round"
           strokeLinejoin="round"
         >
-          {docs[id] ? <path d="M5 13l4 4L19 7" /> : <path d="M12 5v14M5 12h14" />}
+          {docs[id] ? (
+            <path d="M5 13l4 4L19 7" />
+          ) : (
+            <path d="M12 5v14M5 12h14" />
+          )}
         </svg>
         {caption}
       </span>
@@ -221,8 +239,12 @@ export default function LandingPage({
                   <strong className="guideline-promo-title">
                     {t.guidelineTitle}
                   </strong>
-                  <span className="guideline-promo-text">{t.guidelineText}</span>
-                  <span className="guideline-promo-meta">{t.guidelineMeta}</span>
+                  <span className="guideline-promo-text">
+                    {t.guidelineText}
+                  </span>
+                  <span className="guideline-promo-meta">
+                    {t.guidelineMeta}
+                  </span>
                   <span className="guideline-promo-action">
                     <svg
                       width="14"
@@ -259,13 +281,13 @@ export default function LandingPage({
                   "whitepaper_de",
                   "/whitepaper-de-cover.png",
                   "CleanImplant White Paper (Deutsch)",
-                  t.coverDe
+                  t.coverDe,
                 )}
                 {renderCover(
                   "whitepaper_en",
                   "/whitepaper-en-cover.png",
                   "CleanImplant White Paper (English)",
-                  t.coverEn
+                  t.coverEn,
                 )}
               </div>
             </>
@@ -284,13 +306,13 @@ export default function LandingPage({
                   "whitepaper_de",
                   "/whitepaper-de-cover.png",
                   "CleanImplant White Paper (Deutsch)",
-                  t.coverDe
+                  t.coverDe,
                 )}
                 {renderCover(
                   "whitepaper_en",
                   "/whitepaper-en-cover.png",
                   "CleanImplant White Paper (English)",
-                  t.coverEn
+                  t.coverEn,
                 )}
               </div>
 
@@ -311,8 +333,12 @@ export default function LandingPage({
                   <strong className="guideline-promo-title">
                     {t.guidelineTitle}
                   </strong>
-                  <span className="guideline-promo-text">{t.guidelineText}</span>
-                  <span className="guideline-promo-meta">{t.guidelineMeta}</span>
+                  <span className="guideline-promo-text">
+                    {t.guidelineText}
+                  </span>
+                  <span className="guideline-promo-meta">
+                    {t.guidelineMeta}
+                  </span>
                   <span className="guideline-promo-action">
                     <svg
                       width="14"
@@ -369,7 +395,8 @@ export default function LandingPage({
                         {/* Primary: guideline */}
                         <div className="field-group">
                           <span className="field-label">
-                            {gv.primaryLabel} <span className="required">*</span>
+                            {gv.primaryLabel}{" "}
+                            <span className="required">*</span>
                           </span>
                           <div className="options-group">
                             <label
@@ -403,7 +430,9 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_de}
-                                onChange={() => toggleWhitepaper("whitepaper_de")}
+                                onChange={() =>
+                                  toggleWhitepaper("whitepaper_de")
+                                }
                               />
                               <span className="option-label">{t.wpDe}</span>
                               <span className="option-flag">DE</span>
@@ -414,7 +443,9 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_en}
-                                onChange={() => toggleWhitepaper("whitepaper_en")}
+                                onChange={() =>
+                                  toggleWhitepaper("whitepaper_en")
+                                }
                               />
                               <span className="option-label">{t.wpEn}</span>
                               <span className="option-flag">EN</span>
@@ -436,7 +467,9 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_de}
-                                onChange={() => toggleWhitepaper("whitepaper_de")}
+                                onChange={() =>
+                                  toggleWhitepaper("whitepaper_de")
+                                }
                               />
                               <span className="option-label">{t.wpDe}</span>
                               <span className="option-flag">DE</span>
@@ -447,7 +480,9 @@ export default function LandingPage({
                               <input
                                 type="checkbox"
                                 checked={docs.whitepaper_en}
-                                onChange={() => toggleWhitepaper("whitepaper_en")}
+                                onChange={() =>
+                                  toggleWhitepaper("whitepaper_en")
+                                }
                               />
                               <span className="option-label">{t.wpEn}</span>
                               <span className="option-flag">EN</span>
@@ -571,7 +606,9 @@ export default function LandingPage({
                       )}
                       {roleError && (
                         <p className="error-msg visible">
-                          {role === "other" ? t.roleErrorOther : t.roleErrorSelect}
+                          {role === "other"
+                            ? t.roleErrorOther
+                            : t.roleErrorSelect}
                         </p>
                       )}
                     </div>
@@ -669,80 +706,14 @@ export default function LandingPage({
                 )}
               </form>
             </div>
-          ) : success.confirmed ? (
-            <div className="success-panel">
-              <div className="success-icon">
-                <svg
-                  width="26"
-                  height="26"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="white"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3>{t.thanksTitle}</h3>
-              <p>{t.thanksText}</p>
-              {newsletter && locale === "de" && (
-                <p className="privacy-note" style={{ marginTop: 0 }}>
-                  {t.newsletterConfirmNote}
-                </p>
-              )}
-              <div className="success-links">
-                {success.links.map((link) => (
-                  <a
-                    key={link.url}
-                    href={link.url}
-                    download
-                    className="btn-direct-download"
-                  >
-                    <svg
-                      width="15"
-                      height="15"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 3v12" />
-                    </svg>
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            </div>
           ) : (
-            <div className="success-panel">
-              <div className="success-icon">
-                <svg
-                  width="26"
-                  height="26"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="white"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 4h16v16H4zM4 7l8 5 8-5" />
-                </svg>
-              </div>
-              <h3>{t.almostTitle}</h3>
-              <p>
-                {t.almostBefore}
-                <strong>{success.email}</strong>
-                {t.almostAfter}
-                <br />
-                <br />
-                {t.spamNote}
-              </p>
-            </div>
+            <SuccessPanel
+              locale={locale}
+              links={success.links}
+              email={success.email}
+              confirmed={success.confirmed}
+              newsletter={newsletter}
+            />
           )}
         </div>
       </main>

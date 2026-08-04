@@ -59,6 +59,10 @@ export interface Strings {
   almostBefore: string;
   almostAfter: string;
   spamNote: string;
+  /** Danke-Seite, direkt aufgerufen (ohne vorherige Anmeldung in dieser Sitzung) */
+  thanksDirectTitle: string;
+  thanksDirectText: string;
+  thanksDirectCta: string;
 }
 
 // Zusatztexte für die Variante mit der Guideline im Vordergrund
@@ -178,6 +182,10 @@ export const T: Record<Locale, Strings> = {
     almostAfter:
       " gesendet. Bitte klicken Sie auf den Link darin – danach stehen Ihre Dokumente sofort zum Download bereit.",
     spamNote: "Keine E-Mail erhalten? Bitte prüfen Sie auch Ihren Spam-Ordner.",
+    thanksDirectTitle: "Ihre Dokumente sind unterwegs",
+    thanksDirectText:
+      "Wir haben Ihnen die angeforderten Dokumente per E-Mail geschickt. Bitte prüfen Sie Ihr Postfach – und ggf. den Spam-Ordner.",
+    thanksDirectCta: "Zurück zum Download-Formular",
   },
   en: {
     langNav: { de: "DE", en: "EN" },
@@ -247,5 +255,9 @@ export const T: Record<Locale, Strings> = {
     almostAfter:
       ". Please click the link inside — your documents will then be ready to download.",
     spamNote: "No email? Please also check your spam folder.",
+    thanksDirectTitle: "Your documents are on the way",
+    thanksDirectText:
+      "We've sent the requested documents to your email address. Please check your inbox — and your spam folder if needed.",
+    thanksDirectCta: "Back to the download form",
   },
 };
