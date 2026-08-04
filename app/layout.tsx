@@ -44,9 +44,9 @@ export default function RootLayout({
 
           Reihenfolge ist entscheidend und ergibt sich aus der Deklaration hier:
           1. Google Consent Mode Defaults – alles "denied", bevor irgendein Tag lädt
-          2. Cookiebot (data-blockingmode="auto") – blockt alle nachfolgenden
-             Tracking-Skripte bis zur Einwilligung
-          3. Meta Pixel – wird dadurch bis zur Marketing-Einwilligung geblockt
+          2. Cookiebot
+          3. Meta Pixel – als type="text/plain" mit data-cookieconsent="marketing",
+             siehe Kommentar dort.
         */}
         <script
           id="google-consent-mode-default"
@@ -79,9 +79,23 @@ export default function RootLayout({
           type="text/javascript"
         />
 
-        {/* Meta Pixel Code */}
+        {/*
+          Meta Pixel Code
+
+          type="text/plain" + data-cookieconsent="marketing" ist Cookiebots
+          explizite (manuelle) Blockierung: der Browser führt das Script nicht
+          aus, Cookiebot setzt den Typ erst nach erteilter Marketing-Einwilligung
+          auf text/javascript und startet es dann.
+
+          Bewusst NICHT auf data-blockingmode="auto" verlassen: ein Inline-Script
+          direkt nach Cookiebot wird beim Parsen synchron ausgeführt, bevor
+          Cookiebots Rewriting eingreifen kann. Live gemessen hatte der Pixel
+          dadurch ohne jede Einwilligung PageView gesendet und _fbp gesetzt.
+        */}
         <script
           id="meta-pixel"
+          type="text/plain"
+          data-cookieconsent="marketing"
           dangerouslySetInnerHTML={{ __html: `
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -95,13 +109,11 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '${META_PIXEL_ID}');
 fbq('track', 'PageView');` }}
         />
-        <noscript
-          dangerouslySetInnerHTML={{
-            __html: `<img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1"
-/>`,
-          }}
-        />
+        {/*
+          Der <noscript>-Fallback-Pixel von Meta fehlt hier absichtlich: ohne
+          JavaScript läuft Cookiebot nicht, das Bild würde also zwangsläufig ohne
+          Einwilligung geladen. Nicht blockierbar heißt hier: weglassen.
+        */}
         {/* End Meta Pixel Code */}
 
         {children}
