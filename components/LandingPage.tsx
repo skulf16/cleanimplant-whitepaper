@@ -38,6 +38,9 @@ export default function LandingPage({
   const [roleOther, setRoleOther] = useState("");
   const [newsletter, setNewsletter] = useState(false);
   const [name, setName] = useState("");
+  // Bot-Schutz: Honeypot-Feld (nur Bots füllen es) + Ladezeitpunkt für den Zeit-Check
+  const [company, setCompany] = useState("");
+  const [formLoadedAt] = useState(() => Date.now());
 
   const [emailError, setEmailError] = useState(false);
   const [docError, setDocError] = useState(false);
@@ -113,6 +116,8 @@ export default function LandingPage({
           newsletter,
           name: newsletter ? name.trim() : "",
           locale,
+          company,
+          elapsedMs: Date.now() - formLoadedAt,
           source:
             typeof document !== "undefined"
               ? document.referrer || "direct"
@@ -387,6 +392,30 @@ export default function LandingPage({
           {!success ? (
             <div className="form-body">
               <form onSubmit={handleSubmit} noValidate>
+                {/* Honeypot – für echte Nutzer unsichtbar, füllen nur Bots aus */}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    position: "absolute",
+                    left: "-9999px",
+                    width: 1,
+                    height: 1,
+                    overflow: "hidden",
+                  }}
+                >
+                  <label>
+                    Company
+                    <input
+                      type="text"
+                      name="company"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                    />
+                  </label>
+                </div>
+
                 {/* Step 1: selection */}
                 {step === 1 && (
                   <>

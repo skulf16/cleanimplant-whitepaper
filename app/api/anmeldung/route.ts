@@ -7,6 +7,7 @@ import {
 import { signedDownloadUrl } from "@/lib/token";
 import { sendMail, isMailConfigured } from "@/lib/mailer";
 import { subscribeToNewsletter } from "@/lib/cleverreach";
+import { rateLimit } from "@/lib/ratelimit";
 
 export const runtime = "nodejs";
 
@@ -31,8 +32,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Ungültige Anfrage." }, { status: 400 });
   }
 
-  const { email, documents, roles, newsletter, name, source, locale } = (body ??
-    {}) as {
+  const {
+    email,
+    documents,
+    roles,
+    newsletter,
+    name,
+    source,
+    locale,
+    company,
+    elapsedMs,
+  } = (body ?? {}) as {
     email?: string;
     documents?: unknown[];
     roles?: string[];
@@ -40,6 +50,8 @@ export async function POST(req: NextRequest) {
     name?: string;
     source?: string;
     locale?: string;
+    company?: string;
+    elapsedMs?: number;
   };
 
   // Name (nur bei Newsletter) in Vor-/Nachname aufteilen
@@ -58,15 +70,47 @@ export async function POST(req: NextRequest) {
       email: "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
       doc: "Bitte wählen Sie mindestens ein Dokument aus.",
       mail: "Der E-Mail-Versand ist fehlgeschlagen. Bitte später erneut versuchen.",
+      rate: "Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut.",
     },
     en: {
       email: "Please enter a valid email address.",
       doc: "Please select at least one document.",
       mail: "Sending the email failed. Please try again later.",
+      rate: "Too many requests. Please try again in a few minutes.",
     },
   }[lang];
 
   const profession = Array.isArray(roles) ? roles.join(", ") : "";
+
+  // Absender-IP (hinter dem Coolify/Traefik-Proxy)
+  const clientIp =
+    req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
+
+  // Rate-Limit: max. 5 Anfragen pro IP in 10 Minuten
+  const rl = rateLimit(`anmeldung:${clientIp}`, 5, 10 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: ERR.rate },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+    );
+  }
+
+  // Bot-Erkennung: Honeypot-Feld ausgefüllt ODER Formular in <3 Sek. abgeschickt.
+  // Wir tun so, als sei alles ok (kein Hinweis für den Bot), führen aber
+  // KEINE Aktion aus (keine Mail, keine Newsletter-Anmeldung).
+  const isBot =
+    (typeof company === "string" && company.trim().length > 0) ||
+    (typeof elapsedMs === "number" && elapsedMs >= 0 && elapsedMs < 3000);
+  if (isBot) {
+    console.warn(
+      `[anmeldung] Bot-Absenden verworfen (ip=${clientIp}, honeypot=${Boolean(
+        company && company.trim()
+      )}, elapsedMs=${elapsedMs}).`
+    );
+    return NextResponse.json({ ok: true, confirmed: true, links: [] });
+  }
 
   if (!email || !isValidEmail(email)) {
     return NextResponse.json({ error: ERR.email }, { status: 400 });
